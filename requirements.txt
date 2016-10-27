@@ -7,5 +7,7 @@ itsdangerous==0.24
 Jinja2==2.8
 MarkupSafe==0.23
 psycopg2==2.6.2
+slackclient==1.0.2
 SQLAlchemy==1.1.2
+synapse-pay-rest-native==1.0.1
 Werkzeug==0.11.11
