@@ -1,1 +1,1 @@
-web: gunicorn app:app
+web: gunicorn synapsebot:synapsebot --log-file=- --log-level "debug"
