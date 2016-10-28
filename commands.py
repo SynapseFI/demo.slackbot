@@ -5,20 +5,26 @@ from synapse_pay_rest import Client, User, Node, Transaction
 
 
 # synapse_pay_rest config (mostly hard-coded for now)
-client = Client(
-    client_id=os.environ['CLIENT_ID'],
-    client_secret=os.environ['CLIENT_SECRET'],
-    fingerprint=os.environ['FINGERPRINT'],
-    ip_address='127.0.0.1',
-    logging=True,
-    development_mode=True
-)
+# client = Client(
+#     client_id=os.environ['CLIENT_ID'],
+#     client_secret=os.environ['CLIENT_SECRET'],
+#     fingerprint=os.environ['FINGERPRINT'],
+#     ip_address='127.0.0.1',
+#     logging=True,
+#     development_mode=True
+# )
 
-SYNAPSE_USER_ID = '57d2055a86c27339ffdee4cc'
-user = User.by_id(client=client, id=SYNAPSE_USER_ID)
+# SYNAPSE_USER_ID = '57d2055a86c27339ffdee4cc'
+# user = User.by_id(client=client, id=SYNAPSE_USER_ID)
 
 
 # bot commands
+
+def i_am(command):
+    """Associate user id with the user's slack id."""
+    # synapse_id = 
+    pass
+
 
 def who_am_i(command):
     """Return info on the user."""
