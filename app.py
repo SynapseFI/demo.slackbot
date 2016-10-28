@@ -30,4 +30,4 @@ if slack_client.rtm_connect():
             synapse_bot.handle_command(command, channel)
         time.sleep(READ_WEBSOCKET_DELAY)
 else:
-    print('Connection failed. Invalid Slack token or bot ID?')
+    print('Connection failed.')

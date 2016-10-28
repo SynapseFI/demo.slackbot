@@ -1,14 +1,14 @@
 import sys
 from synapse_pay_rest.errors import SynapsePayError
-from commands import i_am, list_resource, send, who_am_i
+from commands import Commands
 
 
 class SynapseBot():
     COMMANDS = {
-        'list': list_resource,
-        'iam': i_am,
-        'send': send,
-        'whoami': who_am_i
+        'list': Commands.list_resource,
+        'register': Commands.register,
+        'send': Commands.send,
+        'whoami': Commands.who_am_i
     }
 
     def __init__(self, slack_client, bot_id):
@@ -17,6 +17,10 @@ class SynapseBot():
 
     def at_bot(self):
         return '<@' + self.bot_id + '>'
+
+    def post_to_channel(self, channel, text):
+        self.slack_client.api_call("chat.postMessage", channel=channel,
+                                   text=text, as_user=True)
 
     def handle_command(self, command, channel):
         """Parses a command, runs the matching function, posts response in channel.
@@ -33,6 +37,7 @@ class SynapseBot():
                 '\n'.join([command for command in self.COMMANDS])
             )
         elif keyword in self.COMMANDS:
+            self.post_to_channel(channel, 'Processing command...')
             try:
                 response = self.COMMANDS[keyword](command)
             except SynapsePayError as e:
@@ -44,9 +49,7 @@ class SynapseBot():
                 response = (
                     'An error occurred:\n{0}'.format(sys.exc_info()[0])
                 )
-
-        self.slack_client.api_call("chat.postMessage", channel=channel,
-                                   text=response, as_user=True)
+        self.post_to_channel(channel, response)
 
     def parse_slack_output(self, slack_rtm_output):
         """Monitors Slack channel for messages.
