@@ -4,8 +4,7 @@ import os
 from synapse_pay_rest import Client, User, Node, Transaction
 
 
-# synapse_pay_rest config
-client = Client(
+synapse_client = Client(
     client_id=os.environ['CLIENT_ID'],
     client_secret=os.environ['CLIENT_SECRET'],
     fingerprint=os.environ['FINGERPRINT'],
@@ -13,9 +12,6 @@ client = Client(
     logging=True,
     development_mode=True
 )
-
-SYNAPSE_USER_ID = '57d2055a86c27339ffdee4cc'
-user = User.by_id(client=client, id=SYNAPSE_USER_ID)
 
 
 # bot commands
@@ -51,9 +47,10 @@ class Commands():
         """Return the user's Synapse transactions."""
         node = Node.by_id(user=user, id=from_id)
         transactions = Transaction.all(node=node)
-        formatted = ["You sent {0} on {1} to {2}'s {3} node (trans_id: {4}).".format(
-                            format_currency(trans.amount),
-                            timestamp_to_string(trans.process_on),
+        formatted = ["You sent {0} on {1} to {2}'s {3} node "
+                     "(trans_id: {4}).".format(
+                            Commands.format_currency(trans.amount),
+                            Commands.timestamp_to_string(trans.process_on),
                             trans.to_info['user']['legal_names'][0],
                             trans.to_info['type'],
                             trans.id
@@ -94,7 +91,29 @@ class Commands():
 
     @staticmethod
     def register(command):
-        """Create a new user with Synapse."""
+        """Create a new user with Synapse.
+
+        TODO:
+            - better way to parse names > 2 words length
+            - split these out into separate commands?
+        """
+        first_name = Commands.word_after(command, 'name')
+        last_name = Commands.word_after(command, first_name)
+        name = first_name + ' ' + last_name
+        mailto = Commands.word_after(command, 'email')
+        tel = Commands.word_after(command, 'phone')
+        email = Commands.parse_mailto_or_tel(mailto)
+        phone = Commands.parse_mailto_or_tel(tel)
+        options = {
+            'note': 'created by Synapse Slackbot',
+            'supp_id': '',
+            'is_business': False,
+            'cip_tag': 1
+        }
+        user = User.create(client=synapse_client, email=email,
+                           phone_number=phone, legal_name=name, **options)
+        return 'User created - {0} (user_id: {1}'.format(user.legal_names[0],
+                                                         user.id)
 
     # helpers
     @staticmethod
@@ -119,3 +138,7 @@ class Commands():
         without_ms = int(str(timestamp)[:-3])
         timestamp = datetime.datetime.fromtimestamp(without_ms)
         return timestamp.strftime('%Y-%m-%d')
+
+    @staticmethod
+    def parse_mailto_or_tel(mailto_string):
+        return mailto_string.split('|')[1][:-1]
