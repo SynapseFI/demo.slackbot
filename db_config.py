@@ -1,3 +1,4 @@
+"""Config variables for getting the database URI."""
 username = 'stevula'
 password = 'default'
 host = 'localhost'

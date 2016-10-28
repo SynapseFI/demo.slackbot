@@ -1,13 +1,10 @@
-#!/usr/bin/env python3
-"""Command logic for the slackbot.
-"""
+"""Command logic for the slackbot."""
 import os
 import datetime
 from synapse_pay_rest import Client, User, Node, Transaction
 
 
 # synapse_pay_rest config (mostly hard-coded for now)
-
 client = Client(
     client_id=os.environ['CLIENT_ID'],
     client_secret=os.environ['CLIENT_SECRET'],

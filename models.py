@@ -1,3 +1,4 @@
+"""SQLAlchemy models."""
 from app import db
 
 
