@@ -1,11 +1,11 @@
 """SQLAlchemy models."""
-from app import db
+from db_config import db
 
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    slack_user_id = db.Column(db.String(10), unique=True)
-    synapse_user_id = db.Column(db.String(20), unique=True)
+    slack_user_id = db.Column(db.String(15))  # TODO: (after testing) unique=True
+    synapse_user_id = db.Column(db.String(30))  # TODO: (after testing) unique=True
 
     def __init__(self, slack_user_id, synapse_user_id):
         self.slack_user_id = slack_user_id

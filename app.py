@@ -1,17 +1,8 @@
 #!/usr/bin/env python3
 import os
 import time
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from db_config import db_uri
 from slackclient import SlackClient
 from synapse_bot import SynapseBot
-
-# configure Flask and postgres
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
 
 # configure slackbot
 slack_client = SlackClient(os.environ.get('SLACKBOT_TOKEN'))
@@ -25,9 +16,9 @@ if slack_client.rtm_connect():
     while True:
         stream = synapse_bot.slack_client.rtm_read()
         print(stream)
-        command, channel = synapse_bot.parse_slack_output(stream)
+        channel, user, command = synapse_bot.parse_slack_output(stream)
         if command and channel:
-            synapse_bot.handle_command(command, channel)
+            synapse_bot.handle_command(channel, user, command)
         time.sleep(READ_WEBSOCKET_DELAY)
 else:
     print('Connection failed.')

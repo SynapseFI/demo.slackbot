@@ -1,14 +1,15 @@
 import sys
 from synapse_pay_rest.errors import SynapsePayError
-from commands import Commands
+from commands import add_cip, list_resource, register, send, who_am_i
 
 
 class SynapseBot():
-    COMMANDS = {
-        'list': Commands.list_resource,
-        'register': Commands.register,
-        'send': Commands.send,
-        'whoami': Commands.who_am_i
+    ACTIONS = {
+        'cip': add_cip,
+        'list': list_resource,
+        'register': register,
+        'send': send,
+        'whoami': who_am_i
     }
 
     def __init__(self, slack_client, bot_id):
@@ -22,7 +23,7 @@ class SynapseBot():
         self.slack_client.api_call("chat.postMessage", channel=channel,
                                    text=text, as_user=True)
 
-    def handle_command(self, command, channel):
+    def handle_command(self, channel, user, command):
         """Parses a command, runs the matching function, posts response in channel.
 
         Receives commands directed at the bot and determines if they
@@ -34,12 +35,13 @@ class SynapseBot():
         if keyword == 'help':
             response = (
                 'Available commands:\n' +
-                '\n'.join([command for command in self.COMMANDS])
+                '\n'.join([command for command in self.ACTIONS])
             )
-        elif keyword in self.COMMANDS:
+        elif keyword in self.ACTIONS:
             self.post_to_channel(channel, 'Processing command...')
             try:
-                response = self.COMMANDS[keyword](command)
+                action = self.ACTIONS[keyword]
+                response = action(user, command)
             except SynapsePayError as e:
                 response = (
                     'An HTTP error occurred while trying to communicate with '
@@ -62,7 +64,7 @@ class SynapseBot():
         if output_list and len(output_list) > 0:
             for output in output_list:
                 if output and 'text' in output and self.at_bot() in output['text']:
-                    # return text after the @ mention, whitespace removed
-                    return output['text'].split(self.at_bot())[1].strip().lower(), \
-                           output['channel']
-        return None, None
+                    # text after @ tag
+                    text = output['text'].split(self.at_bot())[1].strip().lower()
+                    return (output['channel'], output['user'], text)
+        return None, None, None
