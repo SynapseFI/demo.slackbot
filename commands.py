@@ -44,7 +44,7 @@ def register(slack_user_id, command):
     db.session.add(user)
     db.session.commit()
     return 'User created - {0} (user_id: {1})'.format(synapse_user.legal_names[0],
-                                                     synapse_user.id)
+                                                      synapse_user.id)
 
 
 def add_cip(slack_user_id, command):
@@ -54,7 +54,9 @@ def add_cip(slack_user_id, command):
 
 def who_am_i(slack_user_id, command):
     """Return info on the user."""
-    return 'You are {0} (user_id: {1})'.format(user.legal_names[0], user.id)
+    user = User.query.filter(User.slack_user_id==slack_user_id).all()[-1]
+    synapse_user = SynapseUser.by_id(client=synapse_client, id=user.synapse_user_id)
+    return 'You are {0} (user_id: {1})'.format(synapse_user.legal_names[0], synapse_user.id)
 
 
 def list_resource(slack_user_id, command):

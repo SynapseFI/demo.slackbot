@@ -48,9 +48,7 @@ class SynapseBot():
                     'the Synapse API:\n{0}'.format(e.message)
                 )
             except:
-                response = (
-                    'An error occurred:\n{0}'.format(sys.exc_info()[0])
-                )
+                response = 'An error occurred:\n{0}'.format(sys.exc_info()[0])
         self.post_to_channel(channel, response)
 
     def parse_slack_output(self, slack_rtm_output):
