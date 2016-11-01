@@ -16,9 +16,9 @@ if slack_client.rtm_connect():
     while True:
         stream = synapse_bot.slack_client.rtm_read()
         print(stream)
-        channel, user, command = synapse_bot.parse_slack_output(stream)
-        if command and channel:
-            synapse_bot.handle_command(channel, user, command)
+        channel, user, keyword, params = synapse_bot.parse_slack_output(stream)
+        if keyword and channel:
+            synapse_bot.handle_statement(channel, user, keyword, params)
         time.sleep(READ_WEBSOCKET_DELAY)
 else:
     print('Connection failed.')

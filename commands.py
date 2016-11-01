@@ -6,31 +6,51 @@ from synapse_pay_rest import User as SynapseUser
 from db_config import db
 from models import User
 
+# temporary
+server_ip = '127.0.0.1'
 
+# initialize synapse client
 synapse_client = Client(
     client_id=os.environ['CLIENT_ID'],
     client_secret=os.environ['CLIENT_SECRET'],
     fingerprint=os.environ['FINGERPRINT'],
-    ip_address='127.0.0.1',
+    ip_address=server_ip,
     logging=True,
     development_mode=True
 )
 
 
-def register(slack_user_id, command):
+def who_am_i(slack_user_id, params):
+    """Return info on the user.
+
+    TODO:
+        - should not choke if the user isn't registered yet
+    """
+    synapse_user = synapse_user_from_slack_user_id(slack_user_id)
+    return 'You are {0} (user_id: {1})'.format(synapse_user.legal_names[0],
+                                               synapse_user.id)
+
+
+def register(slack_user_id, params):
     """Create a new user with Synapse.
 
     TODO:
         - better way to parse names > 2 words length
-        - split these out into separate commands?
+        - split these out into separate paramss?
+        - don't let a user register more than once
     """
-    first_name = word_after(command, 'name')
-    last_name = word_after(command, first_name)
-    name = first_name + ' ' + last_name
-    mailto = word_after(command, 'email')
-    tel = word_after(command, 'phone')
-    email = parse_mailto_or_tel(mailto)
-    phone = parse_mailto_or_tel(tel)
+    name, email, phone = None, None, None
+    # for field in fields:
+    #     if field.startswith('name'):
+    #         name = parse_field_value('name', field)
+    #     elif field.startswith('email'):
+    #         mailto = word_after(params, 'email')
+    #         email = parse_mailto_or_tel(mailto)
+    #     elif field.startswith('phone'):
+    #         tel = word_after(params, 'phone')
+    #         phone = parse_mailto_or_tel(tel)
+
+    # this is actually required for the lib to work until api or lib changed
     options = {
         'note': 'created by Synapse Slackbot',
         'supp_id': '',
@@ -40,6 +60,7 @@ def register(slack_user_id, command):
     synapse_user = SynapseUser.create(client=synapse_client, email=email,
                                       phone_number=phone, legal_name=name,
                                       **options)
+    # add to db
     user = User(slack_user_id, synapse_user.id)
     db.session.add(user)
     db.session.commit()
@@ -47,25 +68,30 @@ def register(slack_user_id, command):
                                                       synapse_user.id)
 
 
-def add_cip(slack_user_id, command):
+def add_cip(slack_user_id, params):
     """Add Synapse CIP base document to user."""
-    pass
+    user = synapse_user_from_slack_user_id(slack_user_id)
+    email = user.logins[0]['email']
+    phone = user.phone_numbers[0]
+    ip = server_ip
+    name = user.legal_names[0]
+    alias = name
+    entity_type = 'NOT_KNOWN'
+    entity_scope = 'Not Known'
+    day, month, year = bday_string_to_ints(word_after(params, 'dob'))
+    address_street = word_after()
+    # address_city = 
+    # address_subdivision = 
+    # address_postal_code = 
 
 
-def who_am_i(slack_user_id, command):
-    """Return info on the user."""
-    user = User.query.filter(User.slack_user_id==slack_user_id).all()[-1]
-    synapse_user = SynapseUser.by_id(client=synapse_client, id=user.synapse_user_id)
-    return 'You are {0} (user_id: {1})'.format(synapse_user.legal_names[0], synapse_user.id)
-
-
-def list_resource(slack_user_id, command):
+def list_resource(slack_user_id, params):
     """List the specified resource (node/transaction)."""
-    resource = word_after(command, 'list')
+    resource = word_after(params, 'list')
     if resource == 'nodes':
         return list_nodes()
     elif resource == 'transactions':
-        from_id = word_after(command, 'from')
+        from_id = word_after(params, 'from')
         return list_transactions(from_id)
 
 
@@ -95,19 +121,19 @@ def list_transactions(from_id):
     return '\n'.join(formatted)
 
 
-def send(slack_user_id, command):
+def send(slack_user_id, params):
     """Create a Synapse transaction."""
-    from_node_id = word_after(command, 'from')
+    from_node_id = word_after(params, 'from')
     from_node = Node.by_id(user=user, id=from_node_id)
     args = {
-        'amount': word_after(command, 'send'),
-        'to_id': word_after(command, 'to'),
+        'amount': word_after(params, 'send'),
+        'to_id': word_after(params, 'to'),
         'to_type': 'SYNAPSE-US',
         'currency': 'USD',
         'ip': '127.0.0.1'
     }
-    if 'on' in command:
-        args['process_in'] = word_after(command, 'in')
+    if 'on' in params:
+        args['process_in'] = word_after(params, 'in')
     try:
         transaction = Transaction.create(from_node, **args)
     except Exception as e:
@@ -127,8 +153,10 @@ def send(slack_user_id, command):
 
 
 # helpers
-def synapse_id_from_slack_id(slack_id):
-    """Look up user's synapse_user_id in database."""
+def synapse_user_from_slack_user_id(slack_user_id):
+    """Find user's synapse id and get the Synapse user."""
+    user = User.query.filter(User.slack_user_id==slack_user_id).all()[-1]
+    return SynapseUser.by_id(client=synapse_client, id=user.synapse_user_id)
 
 
 def format_currency(amount):
@@ -154,5 +182,7 @@ def timestamp_to_string(timestamp):
     return timestamp.strftime('%Y-%m-%d')
 
 
-def parse_mailto_or_tel(mailto_string):
-    return mailto_string.split('|')[1][:-1]
+def bday_string_to_ints(bday):
+    """Split mm/dd/yy(yy) into separate m, d, and y fields."""
+    month, day, year = [int(num) for num in bday.split('/')]
+    return (month, day, year)
