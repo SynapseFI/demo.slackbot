@@ -84,6 +84,21 @@ def add_cip(slack_user_id, params):
     user = doc.user
     return ('Base Document (document_id: {0}) added for {1} (user_id: {2})'.format(
             doc.id, name, user.id))
+"""
+file upload format:
+
+[{'type': 'message', 'bot_id': None, 'user': 'U2SLBSK9P', 'file': {'filetype': 'png', 'groups': [], 'comments_count': 0, 'original_w': 598, 'name': 'Screen Shot 2016-11-01 at 1.50.44 PM.png', 'user': 'U2SLBSK9P', 'thumb_480_h': 310, 'timestamp': 1478052943, 'image_exif_rotation': 1, 'size': 81556, 'original_h': 386, 'thumb_480_w': 480, 'thumb_360_w': 360, 'thumb_160': 'https://files.slack.com/files-tmb/T2SJGSJF5-F2XAHJ32S-84566533b9/screen_shot_2016-11-01_at_1.50.44_pm_160.png', 'id': 'F2XAHJ32S', 'thumb_80': 'https://files.slack.com/files-tmb/T2SJGSJF5-F2XAHJ32S-84566533b9/screen_shot_2016-11-01_at_1.50.44_pm_80.png', 'thumb_360_h': 232, 'is_external': False, 'ims': [], 'channels': ['C2SL02UNL'], 'title': 'Screen Shot 2016-11-01 at 1.50.44 PM.png', 'pretty_type': 'PNG', 'mode': 'hosted', 'display_as_bot': False, 'permalink_public': 'https://slack-files.com/T2SJGSJF5-F2XAHJ32S-1c999ff7fb', 'editable': False, 'is_public': True, 'mimetype': 'image/png', 'thumb_360': 'https://files.slack.com/files-tmb/T2SJGSJF5-F2XAHJ32S-84566533b9/screen_shot_2016-11-01_at_1.50.44_pm_360.png', 'permalink': 'https://slackbot-sandbox.slack.com/files/steven/F2XAHJ32S/screen_shot_2016-11-01_at_1.50.44_pm.png', 'public_url_shared': False, 'url_private_download': 'https://files.slack.com/files-pri/T2SJGSJF5-F2XAHJ32S/download/screen_shot_2016-11-01_at_1.50.44_pm.png', 'username': '', 'url_private': 'https://files.slack.com/files-pri/T2SJGSJF5-F2XAHJ32S/screen_shot_2016-11-01_at_1.50.44_pm.png', 'thumb_480': 'https://files.slack.com/files-tmb/T2SJGSJF5-F2XAHJ32S-84566533b9/screen_shot_2016-11-01_at_1.50.44_pm_480.png', 'thumb_64': 'https://files.slack.com/files-tmb/T2SJGSJF5-F2XAHJ32S-84566533b9/screen_shot_2016-11-01_at_1.50.44_pm_64.png', 'external_type': '', 'created': 1478052943}, 'upload': True, 'display_as_bot': False, 'subtype': 'file_share', 'team': 'T2SJGSJF5', 'username': '<@U2SLBSK9P|steven>', 'ts': '1478052946.000180', 'text': '<@U2SLBSK9P|steven> uploaded a file: <https://slackbot-sandbox.slack.com/files/steven/F2XAHJ32S/screen_shot_2016-11-01_at_1.50.44_pm.png|Screen Shot 2016-11-01 at 1.50.44 PM.png>', 'channel': 'C2SL02UNL'}]
+"""
+
+
+def add_physical_doc(slack_user_id, params):
+    """Upload a physical doc for user's CIP."""
+    pass
+
+
+def add_virtual_doc(slack_user_id, params):
+    """Add a virtual doc for user's CIP."""
+    pass
 
 
 def list_resource(slack_user_id, params):

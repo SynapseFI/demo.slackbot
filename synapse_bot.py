@@ -1,12 +1,15 @@
 import sys
 import re
 from synapse_pay_rest.errors import SynapsePayError
-from commands import add_cip, list_resource, register, send, whoami
+from commands import (add_cip, add_physical_doc, add_virtual_doc, list_resource,
+                      register, send, whoami)
 
 
 class SynapseBot():
     COMMANDS = {
-        'cip': add_cip,
+        'add_address': add_cip,
+        'add_photo_id': add_physical_doc,
+        'add_ssn': add_virtual_doc,
         'list': list_resource,
         'register': register,
         'send': send,
