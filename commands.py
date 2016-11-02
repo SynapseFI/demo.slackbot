@@ -82,7 +82,7 @@ def add_cip(slack_user_id, params):
         address_country_code='US'
     )
     user = doc.user
-    return ('Base Document (document_id: {0}) added for {1} (user_id: {2})'.format(
+    return ('Base document (document_id: {0}) added for {1} (user_id: {2})'.format(
             doc.id, name, user.id))
 """
 file upload format:
@@ -147,8 +147,9 @@ def list_transactions(slack_user_id, from_id):
 
 def send(slack_user_id, params):
     """Create a Synapse transaction."""
+    synapse_user = synapse_user_from_slack_user_id(slack_user_id)
     from_node_id = word_after(params, 'from')
-    from_node = Node.by_id(user=user, id=from_node_id)
+    from_node = Node.by_id(user=synapse_user, id=from_node_id)
     args = {
         'amount': word_after(params, 'send'),
         'to_id': word_after(params, 'to'),
@@ -158,10 +159,7 @@ def send(slack_user_id, params):
     }
     if 'on' in params:
         args['process_in'] = word_after(params, 'in')
-    try:
-        transaction = Transaction.create(from_node, **args)
-    except Exception as e:
-        print(e.__dict__)
+    transaction = Transaction.create(from_node, **args)
     return (
         "Created ${0} transaction from {1}'s {2} node to {3}'s {4} node.\n"
         "Scheduled for {5}.\nCurrent status: {6}.".format(
