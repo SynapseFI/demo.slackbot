@@ -83,32 +83,37 @@ def add_cip(slack_user_id, params):
     )
     user = doc.user
     return ('Base Document (document_id: {0}) added for {1} (user_id: {2})'.format(
-             doc.id, name, user.id))
+            doc.id, name, user.id))
 
 
 def list_resource(slack_user_id, params):
     """List the specified resource (node/transaction)."""
-    resource = word_after(params, 'list')
-    if resource == 'nodes':
-        return list_nodes()
-    elif resource == 'transactions':
+    if params.startswith('nodes'):
+        return list_nodes(slack_user_id)
+    elif params.startswith('transactions'):
         from_id = word_after(params, 'from')
-        return list_transactions(from_id)
+        return list_transactions(slack_user_id, from_id)
 
 
-def list_nodes():
+def list_nodes(slack_user_id):
     """Return the user's Synapse nodes."""
-    nodes = Node.all(user=user)
+    synapse_user = synapse_user_from_slack_user_id(slack_user_id)
+    nodes = Node.all(user=synapse_user)
     formatted = ['{0} - {1} (node_id: {2})'.format(node.type,
                                                    node.nickname,
                                                    node.id)
                  for node in nodes]
-    return '\n'.join(formatted)
+    if formatted:
+        return '\n'.join(formatted)
+    else:
+        return 'No nodes found for {0} (user_id: {1})'.format(synapse_user.legal_names[0],
+                                                              synapse_user.id)
 
 
-def list_transactions(from_id):
+def list_transactions(slack_user_id, from_id):
     """Return the user's Synapse transactions."""
-    node = Node.by_id(user=user, id=from_id)
+    synapse_user = synapse_user_from_slack_user_id(slack_user_id)
+    node = Node.by_id(user=synapse_user, id=from_id)
     transactions = Transaction.all(node=node)
     formatted = ["You sent {0} on {1} to {2}'s {3} node "
                  "(trans_id: {4}).".format(
@@ -119,7 +124,10 @@ def list_transactions(from_id):
                         trans.id
                     )
                  for trans in transactions]
-    return '\n'.join(formatted)
+    if formatted:
+        return '\n'.join(formatted)
+    else:
+        return 'No transactions found for node_id: {0})'.format(node.id)
 
 
 def send(slack_user_id, params):

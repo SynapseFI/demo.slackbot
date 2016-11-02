@@ -77,7 +77,8 @@ class SynapseBot():
         try:
             params = without_bot_name[1]
             params = self.purge_hyperlinks(params)
-            params = self.params_string_to_dict(params)
+            if '|' in params:
+                params = self.params_string_to_dict(params)
         except IndexError:
             params = None
         return keyword, params
