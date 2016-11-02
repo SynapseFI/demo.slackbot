@@ -28,7 +28,7 @@ Enter these commands in Slack when @Synapse is in channel.
 
 #### Add photo ID
 ```
-TBD
+@synapse add_photo_id
 ```
 
 #### List nodes

@@ -93,12 +93,18 @@ file upload format:
 
 def add_physical_doc(slack_user_id, params):
     """Upload a physical doc for user's CIP."""
-    pass
+    synapse_user = synapse_user_from_slack_user_id(slack_user_id)
+    base_doc = synapse_user.base_documents[-1]
+    base_doc.add_physical_document()
 
 
 def add_virtual_doc(slack_user_id, params):
     """Add a virtual doc for user's CIP."""
-    pass
+    synapse_user = synapse_user_from_slack_user_id(slack_user_id)
+    base_doc = synapse_user.base_documents[-1]
+    virtual_doc = base_doc.add_virtual_document(type='SSN', value=params)
+    return ('SSN doc (id: {0}) added to base document (id: {1}) for {2} (user_id: {3})'.format(
+            virtual_doc.id, base_doc.id, synapse_user.legal_names[0], synapse_user.id))
 
 
 def list_resource(slack_user_id, params):
