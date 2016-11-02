@@ -1,7 +1,7 @@
 import sys
 import re
 from synapse_pay_rest.errors import SynapsePayError
-from commands import add_cip, list_resource, register, send, who_am_i
+from commands import add_cip, list_resource, register, send, whoami
 
 
 class SynapseBot():
@@ -10,7 +10,7 @@ class SynapseBot():
         'list': list_resource,
         'register': register,
         'send': send,
-        'whoami': who_am_i
+        'whoami': whoami
     }
 
     def __init__(self, slack_client, bot_id):
@@ -49,7 +49,7 @@ class SynapseBot():
                     'the Synapse API:\n{0}'.format(e.message)
                 )
             except:
-                response = 'An error occurred:\n{0}'.format(sys.exc_info()[0])
+                response = 'An error occurred:\n{0}'.format(sys.exc_info())
         else:
             response = 'Not sure what you mean. Try the *help* command?'
         self.post_to_channel(channel, response)
@@ -88,22 +88,24 @@ class SynapseBot():
 
     def params_string_to_dict(self, params):
         """Parse params in '1 a|2 b|3 c' format into {1: 'a', ...} format."""
-        fields = params.split('|')
-        field_values = {}
-        for field in fields:
-            field = field.strip()
-            field_name, value = field.split(' ', 1)
-            field_name = field_name.strip()
-            value = value.strip()
-            field_values[field_name] = value
-        return field_values
+        fields = [field.strip().split(' ', 1) for field in params.split('|')]
+        return dict(fields)
 
-    def purge_hyperlinks(self, hyperlinked):
-        """Return the hyperlink-laden string with hyperlinks removed."""
+    def purge_hyperlinks(self, raw):
+        """Return the hyperlink-laden string with hyperlinks removed.
+
+        TODO:
+            - Probably a DRY-er way to sub with capture value in single step.
+        """
+        purged = raw
         email_pattern = r'<mailto:\S+\|(\S+)>'
-        email = re.search(email_pattern, hyperlinked).groups()[0]
-        purged = re.sub(email_pattern, email, hyperlinked)
+        email = re.search(email_pattern, raw)
+        if email:
+            email = email.groups()[0]
+            purged = re.sub(email_pattern, email, raw)
         phone_pattern = r'<tel:\S+\|(\S+)>'
-        phone = re.search(phone_pattern, hyperlinked).groups()[0]
-        purged = re.sub(phone_pattern, phone, purged)
+        phone = re.search(phone_pattern, raw)
+        if phone:
+            phone = phone.groups()[0]
+            purged = re.sub(phone_pattern, phone, purged)
         return purged

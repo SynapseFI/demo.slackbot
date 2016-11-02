@@ -20,7 +20,7 @@ synapse_client = Client(
 )
 
 
-def who_am_i(slack_user_id, params):
+def whoami(slack_user_id, params):
     """Return info on the user.
 
     TODO:
@@ -35,30 +35,21 @@ def register(slack_user_id, params):
     """Create a new user with Synapse.
 
     TODO:
-        - better way to parse names > 2 words length
-        - split these out into separate paramss?
+        - accept these as separate msgs instead of | delimited (?)
         - don't let a user register more than once
     """
-    name, email, phone = None, None, None
-    # for field in fields:
-    #     if field.startswith('name'):
-    #         name = parse_field_value('name', field)
-    #     elif field.startswith('email'):
-    #         mailto = word_after(params, 'email')
-    #         email = parse_mailto_or_tel(mailto)
-    #     elif field.startswith('phone'):
-    #         tel = word_after(params, 'phone')
-    #         phone = parse_mailto_or_tel(tel)
-
-    # this is actually required for the lib to work until api or lib changed
+    # these 'options' are actually required for the lib to work until pending
+    #   API update or lib change.
     options = {
         'note': 'created by Synapse Slackbot',
-        'supp_id': '',
+        'supp_id': slack_user_id,
         'is_business': False,
         'cip_tag': 1
     }
-    synapse_user = SynapseUser.create(client=synapse_client, email=email,
-                                      phone_number=phone, legal_name=name,
+    synapse_user = SynapseUser.create(client=synapse_client,
+                                      email=params['email'],
+                                      phone_number=params['phone'],
+                                      legal_name=params['name'],
                                       **options)
     # add to db
     user = User(slack_user_id, synapse_user.id)
@@ -70,19 +61,29 @@ def register(slack_user_id, params):
 
 def add_cip(slack_user_id, params):
     """Add Synapse CIP base document to user."""
-    user = synapse_user_from_slack_user_id(slack_user_id)
-    email = user.logins[0]['email']
-    phone = user.phone_numbers[0]
-    ip = server_ip
-    name = user.legal_names[0]
-    alias = name
-    entity_type = 'NOT_KNOWN'
-    entity_scope = 'Not Known'
-    day, month, year = bday_string_to_ints(word_after(params, 'dob'))
-    address_street = word_after()
-    # address_city = 
-    # address_subdivision = 
-    # address_postal_code = 
+    synapse_user = synapse_user_from_slack_user_id(slack_user_id)
+    name = synapse_user.legal_names[0]
+    day, month, year = bday_string_to_ints(params['dob'])
+    doc = synapse_user.add_base_document(
+        ip=server_ip,
+        name=name,
+        alias=name,
+        birth_day=day,
+        birth_month=month,
+        birth_year=year,
+        email=synapse_user.logins[0]['email'],
+        phone_number=synapse_user.phone_numbers[0],
+        entity_type='NOT_KNOWN',
+        entity_scope='Not Known',
+        address_street=params['street'],
+        address_city=params['city'],
+        address_subdivision=params['state'],
+        address_postal_code=params['zip'],
+        address_country_code='US'
+    )
+    user = doc.user
+    return ('Base Document (document_id: {0}) added for {1} (user_id: {2})'.format(
+             doc.id, name, user.id))
 
 
 def list_resource(slack_user_id, params):
