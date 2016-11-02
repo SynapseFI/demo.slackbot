@@ -19,28 +19,40 @@ class SynapseBot():
     def __init__(self, slack_client, bot_id):
         self.slack_client = slack_client
         self.bot_id = bot_id
+        self.at_bot = '<@' + self.bot_id + '>'
 
-    def at_bot(self):
-        """The format of the bot id that matches the Slack API return value."""
-        return '<@' + self.bot_id + '>'
+    def help(self):
+        return ('Available statements:\n' +
+                '\n'.join([keyword for keyword in self.COMMANDS]))
 
     def post_to_channel(self, channel, text):
         """Post a message to the channel."""
         self.slack_client.api_call('chat.postMessage', channel=channel,
                                    text=text, as_user=True)
 
-    def handle_statement(self, channel, user, keyword, params):
+    def is_command(self, output):
+        if output and 'text' in output and self.at_bot in output['text']:
+            return True
+
+    def is_file_upload(self, output):
+        if output and 'file' in output:
+            if 'initial_comment' in output['file']:
+                if self.at_bot in output['file']['initial_comment']['comment']:
+                    return True
+
+    def handle_command(self, output):
         """Parse a statement, run the matching function, post response in channel.
 
         Receives statements directed at the bot and determines if they
         are valid statements. If so, then acts on the statements. If not,
         returns back what it needs for clarification.
         """
+        channel = output['channel']
+        user = output['user']
+        keyword, params = self.keyword_and_params_from_text(output['text'])
+
         if keyword == 'help':
-            response = (
-                'Available statements:\n' +
-                '\n'.join([keyword for keyword in self.COMMANDS])
-            )
+            response = self.help()
         elif keyword in self.COMMANDS:
             self.post_to_channel(channel, 'Processing command...')
             try:
@@ -57,6 +69,29 @@ class SynapseBot():
             response = 'Not sure what you mean. Try the *help* command?'
         self.post_to_channel(channel, response)
 
+    def handle_file_upload(self, output):
+        channel = output['channel']
+        user = output['user']
+        comment = output['file']['initial_comment']['comment']
+        url = self.url_from_output(output)
+        if 'add_photo_id' in comment:
+            self.post_to_channel(channel, 'Processing command...')
+            try:
+                response = self.COMMANDS['add_photo_id'](user, url)
+            except SynapsePayError as e:
+                response = (
+                    'An HTTP error occurred while trying to communicate with '
+                    'the Synapse API:\n{0}'.format(e.message)
+                )
+            except:
+                response = 'An error occurred:\n{0}'.format(sys.exc_info())
+        else:
+            response = 'Not sure what you mean. Try the *help* command?'
+        self.post_to_channel(channel, response)
+
+    def url_from_output(self, output):
+        return output['file']['permalink']
+
     def parse_slack_output(self, slack_rtm_output):
         """Monitors Slack channel for messages.
 
@@ -64,13 +99,11 @@ class SynapseBot():
         this parsing function returns None unless a message is
         directed at the SynapseBot, based on its ID.
         """
-        output_list = slack_rtm_output
-        if output_list and len(output_list) > 0:
-            for output in output_list:
-                if output and 'text' in output and self.at_bot() in output['text']:
-                    keyword, params = self.keyword_and_params_from_text(output['text'])
-                    return (output['channel'], output['user'], keyword, params)
-        return None, None, None, None
+        for output in slack_rtm_output:
+            if self.is_file_upload(output):
+                self.handle_file_upload(output)
+            elif self.is_command(output):
+                self.handle_command(output)
 
     def keyword_and_params_from_text(self, text):
         """Parse keyword and params from the text field of the Slack response.

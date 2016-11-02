@@ -20,7 +20,7 @@ synapse_client = Client(
 )
 
 
-def whoami(slack_user_id, params):
+def whoami(slack_user_id, params, **kwargs):
     """Return info on the user.
 
     TODO:
@@ -31,7 +31,7 @@ def whoami(slack_user_id, params):
                                                synapse_user.id)
 
 
-def register(slack_user_id, params):
+def register(slack_user_id, params, **kwargs):
     """Create a new user with Synapse.
 
     TODO:
@@ -59,7 +59,7 @@ def register(slack_user_id, params):
                                                       synapse_user.id)
 
 
-def add_cip(slack_user_id, params):
+def add_cip(slack_user_id, params, **kwargs):
     """Add Synapse CIP base document to user."""
     synapse_user = synapse_user_from_slack_user_id(slack_user_id)
     name = synapse_user.legal_names[0]
@@ -84,21 +84,18 @@ def add_cip(slack_user_id, params):
     user = doc.user
     return ('Base document (document_id: {0}) added for {1} (user_id: {2})'.format(
             doc.id, name, user.id))
-"""
-file upload format:
-
-[{'type': 'message', 'bot_id': None, 'user': 'U2SLBSK9P', 'file': {'filetype': 'png', 'groups': [], 'comments_count': 0, 'original_w': 598, 'name': 'Screen Shot 2016-11-01 at 1.50.44 PM.png', 'user': 'U2SLBSK9P', 'thumb_480_h': 310, 'timestamp': 1478052943, 'image_exif_rotation': 1, 'size': 81556, 'original_h': 386, 'thumb_480_w': 480, 'thumb_360_w': 360, 'thumb_160': 'https://files.slack.com/files-tmb/T2SJGSJF5-F2XAHJ32S-84566533b9/screen_shot_2016-11-01_at_1.50.44_pm_160.png', 'id': 'F2XAHJ32S', 'thumb_80': 'https://files.slack.com/files-tmb/T2SJGSJF5-F2XAHJ32S-84566533b9/screen_shot_2016-11-01_at_1.50.44_pm_80.png', 'thumb_360_h': 232, 'is_external': False, 'ims': [], 'channels': ['C2SL02UNL'], 'title': 'Screen Shot 2016-11-01 at 1.50.44 PM.png', 'pretty_type': 'PNG', 'mode': 'hosted', 'display_as_bot': False, 'permalink_public': 'https://slack-files.com/T2SJGSJF5-F2XAHJ32S-1c999ff7fb', 'editable': False, 'is_public': True, 'mimetype': 'image/png', 'thumb_360': 'https://files.slack.com/files-tmb/T2SJGSJF5-F2XAHJ32S-84566533b9/screen_shot_2016-11-01_at_1.50.44_pm_360.png', 'permalink': 'https://slackbot-sandbox.slack.com/files/steven/F2XAHJ32S/screen_shot_2016-11-01_at_1.50.44_pm.png', 'public_url_shared': False, 'url_private_download': 'https://files.slack.com/files-pri/T2SJGSJF5-F2XAHJ32S/download/screen_shot_2016-11-01_at_1.50.44_pm.png', 'username': '', 'url_private': 'https://files.slack.com/files-pri/T2SJGSJF5-F2XAHJ32S/screen_shot_2016-11-01_at_1.50.44_pm.png', 'thumb_480': 'https://files.slack.com/files-tmb/T2SJGSJF5-F2XAHJ32S-84566533b9/screen_shot_2016-11-01_at_1.50.44_pm_480.png', 'thumb_64': 'https://files.slack.com/files-tmb/T2SJGSJF5-F2XAHJ32S-84566533b9/screen_shot_2016-11-01_at_1.50.44_pm_64.png', 'external_type': '', 'created': 1478052943}, 'upload': True, 'display_as_bot': False, 'subtype': 'file_share', 'team': 'T2SJGSJF5', 'username': '<@U2SLBSK9P|steven>', 'ts': '1478052946.000180', 'text': '<@U2SLBSK9P|steven> uploaded a file: <https://slackbot-sandbox.slack.com/files/steven/F2XAHJ32S/screen_shot_2016-11-01_at_1.50.44_pm.png|Screen Shot 2016-11-01 at 1.50.44 PM.png>', 'channel': 'C2SL02UNL'}]
-"""
 
 
-def add_physical_doc(slack_user_id, params):
+def add_physical_doc(slack_user_id, params, **kwargs):
     """Upload a physical doc for user's CIP."""
     synapse_user = synapse_user_from_slack_user_id(slack_user_id)
     base_doc = synapse_user.base_documents[-1]
-    base_doc.add_physical_document()
+    physical_doc = base_doc.add_physical_document(type='GOVT_ID', url=params)
+    return ('GOVT_ID doc (id: {0}) added to base document (id: {1}) for {2} (user_id: {3})'.format(
+            physical_doc.id, base_doc.id, synapse_user.legal_names[0], synapse_user.id))
 
 
-def add_virtual_doc(slack_user_id, params):
+def add_virtual_doc(slack_user_id, params, **kwargs):
     """Add a virtual doc for user's CIP."""
     synapse_user = synapse_user_from_slack_user_id(slack_user_id)
     base_doc = synapse_user.base_documents[-1]
@@ -107,7 +104,7 @@ def add_virtual_doc(slack_user_id, params):
             virtual_doc.id, base_doc.id, synapse_user.legal_names[0], synapse_user.id))
 
 
-def list_resource(slack_user_id, params):
+def list_resource(slack_user_id, params, **kwargs):
     """List the specified resource (node/transaction)."""
     if params.startswith('nodes'):
         return list_nodes(slack_user_id)
@@ -116,7 +113,7 @@ def list_resource(slack_user_id, params):
         return list_transactions(slack_user_id, from_id)
 
 
-def list_nodes(slack_user_id):
+def list_nodes(slack_user_id, **kwargs):
     """Return the user's Synapse nodes."""
     synapse_user = synapse_user_from_slack_user_id(slack_user_id)
     nodes = Node.all(user=synapse_user)
@@ -131,7 +128,7 @@ def list_nodes(slack_user_id):
                                                               synapse_user.id)
 
 
-def list_transactions(slack_user_id, from_id):
+def list_transactions(slack_user_id, from_id, **kwargs):
     """Return the user's Synapse transactions."""
     synapse_user = synapse_user_from_slack_user_id(slack_user_id)
     node = Node.by_id(user=synapse_user, id=from_id)
@@ -151,7 +148,7 @@ def list_transactions(slack_user_id, from_id):
         return 'No transactions found for node_id: {0})'.format(node.id)
 
 
-def send(slack_user_id, params):
+def send(slack_user_id, params, **kwargs):
     """Create a Synapse transaction."""
     synapse_user = synapse_user_from_slack_user_id(slack_user_id)
     from_node_id = word_after(params, 'from')
