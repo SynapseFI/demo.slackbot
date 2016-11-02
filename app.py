@@ -9,7 +9,7 @@ slack_client = SlackClient(os.environ.get('SLACKBOT_TOKEN'))
 slackbot_id = os.environ.get('SLACKBOT_ID')
 synapse_bot = SynapseBot(slack_client, slackbot_id)
 
-# second delay between reading from firehose
+# second delay between reading from Slack RTM firehose
 READ_WEBSOCKET_DELAY = 1
 if slack_client.rtm_connect():
     print('SynapseBot connected and running!')

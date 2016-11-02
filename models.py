@@ -3,6 +3,11 @@ from db_config import db
 
 
 class User(db.Model):
+    """Store slack user id and synapse user id.
+
+    Todo:
+        - Index slack_user_id
+    """
     id = db.Column(db.Integer, primary_key=True)
     slack_user_id = db.Column(db.String(15))  # TODO: (after testing) unique=True
     synapse_user_id = db.Column(db.String(30))  # TODO: (after testing) unique=True

@@ -38,8 +38,7 @@ def register(slack_user_id, params, **kwargs):
         - accept these as separate msgs instead of | delimited (?)
         - don't let a user register more than once
     """
-    # these 'options' are actually required for the lib to work until pending
-    #   API update or lib change.
+    # these 'options' actually required until pending API update or lib change
     options = {
         'note': 'created by Synapse Slackbot',
         'supp_id': slack_user_id,
@@ -51,7 +50,6 @@ def register(slack_user_id, params, **kwargs):
                                       phone_number=params['phone'],
                                       legal_name=params['name'],
                                       **options)
-    # add to db
     user = User(slack_user_id, synapse_user.id)
     db.session.add(user)
     db.session.commit()
@@ -59,7 +57,7 @@ def register(slack_user_id, params, **kwargs):
                                                       synapse_user.id)
 
 
-def add_cip(slack_user_id, params, **kwargs):
+def add_base_doc(slack_user_id, params, **kwargs):
     """Add Synapse CIP base document to user."""
     synapse_user = synapse_user_from_slack_user_id(slack_user_id)
     name = synapse_user.legal_names[0]

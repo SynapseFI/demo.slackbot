@@ -1,13 +1,13 @@
 import sys
 import re
 from synapse_pay_rest.errors import SynapsePayError
-from commands import (add_cip, add_physical_doc, add_virtual_doc, list_resource,
-                      register, send, whoami)
+from commands import (add_base_doc, add_physical_doc, add_virtual_doc,
+                      list_resource, register, send, whoami)
 
 
 class SynapseBot():
     COMMANDS = {
-        'add_address': add_cip,
+        'add_address': add_base_doc,
         'add_photo_id': add_physical_doc,
         'add_ssn': add_virtual_doc,
         'list': list_resource,
@@ -22,6 +22,7 @@ class SynapseBot():
         self.at_bot = '<@' + self.bot_id + '>'
 
     def help(self):
+        """List the available bot commands."""
         return ('Available statements:\n' +
                 '\n'.join([keyword for keyword in self.COMMANDS]))
 
@@ -30,80 +31,72 @@ class SynapseBot():
         self.slack_client.api_call('chat.postMessage', channel=channel,
                                    text=text, as_user=True)
 
-    def is_command(self, output):
-        if output and 'text' in output and self.at_bot in output['text']:
-            return True
-
-    def is_file_upload(self, output):
-        if output and 'file' in output:
-            if 'initial_comment' in output['file']:
-                if self.at_bot in output['file']['initial_comment']['comment']:
-                    return True
+    def parse_slack_output(self, slack_rtm_output):
+        """Monitor Slack channel for messages."""
+        for output in slack_rtm_output:
+            if self.is_doc_upload(output):
+                self.handle_doc_upload(output)
+            elif self.is_command(output):
+                self.handle_command(output)
 
     def handle_command(self, output):
-        """Parse a statement, run the matching function, post response in channel.
-
-        Receives statements directed at the bot and determines if they
-        are valid statements. If so, then acts on the statements. If not,
-        returns back what it needs for clarification.
-        """
-        channel = output['channel']
-        user = output['user']
+        """Check output for command keyword and call the associated function."""
         keyword, params = self.keyword_and_params_from_text(output['text'])
 
         if keyword == 'help':
             response = self.help()
         elif keyword in self.COMMANDS:
-            self.post_to_channel(channel, 'Processing command...')
-            try:
-                action = self.COMMANDS[keyword]
-                response = action(user, params)
-            except SynapsePayError as e:
-                response = (
-                    'An HTTP error occurred while trying to communicate with '
-                    'the Synapse API:\n{0}'.format(e.message)
-                )
-            except:
-                response = 'An error occurred:\n{0}'.format(sys.exc_info())
+            response = self.execute_command(command=self.COMMANDS[keyword],
+                                            user=output['user'],
+                                            params=params,
+                                            channel=output['channel'])
         else:
             response = 'Not sure what you mean. Try the *help* command?'
-        self.post_to_channel(channel, response)
+        self.post_to_channel(output['channel'], response)
 
-    def handle_file_upload(self, output):
-        channel = output['channel']
-        user = output['user']
+    def handle_doc_upload(self, output):
+        """Check comments for command keyword and add file as physical doc."""
         comment = output['file']['initial_comment']['comment']
-        url = self.url_from_output(output)
-        if 'add_photo_id' in comment:
-            self.post_to_channel(channel, 'Processing command...')
-            try:
-                response = self.COMMANDS['add_photo_id'](user, url)
-            except SynapsePayError as e:
-                response = (
-                    'An HTTP error occurred while trying to communicate with '
-                    'the Synapse API:\n{0}'.format(e.message)
-                )
-            except:
-                response = 'An error occurred:\n{0}'.format(sys.exc_info())
+        keyword = 'add_photo_id'  # hard-coded since there's only 1 for now
+        url = output['file']['permalink']
+
+        if keyword in comment:
+            self.execute_command(command=self.COMMANDS[keyword],
+                                 user=output['user'],
+                                 params=url,
+                                 channel=output['channel'])
         else:
-            response = 'Not sure what you mean. Try the *help* command?'
-        self.post_to_channel(channel, response)
+            response = 'Not sure what you mean. Try the *add_photo_id* command?'
+        self.post_to_channel(output['channel'], response)
 
-    def url_from_output(self, output):
-        return output['file']['permalink']
+    def execute_command(self, command, user, params, channel):
+        self.acknowledge_command(channel)
+        try:
+            response = command(user, params)
+        except SynapsePayError as e:
+            response = (
+                'An HTTP error occurred while trying to communicate with '
+                'the Synapse API:\n{0}'.format(e.message)
+            )
+        except:
+            response = 'An error occurred:\n{0}'.format(sys.exc_info())
+        return response
 
-    def parse_slack_output(self, slack_rtm_output):
-        """Monitors Slack channel for messages.
+    def is_command(self, output):
+        """Determine whether the Slack RTM output contains a command."""
+        if output and 'text' in output and self.at_bot in output['text']:
+            return True
 
-        The Slack Real Time Messaging API is an events firehose.
-        this parsing function returns None unless a message is
-        directed at the SynapseBot, based on its ID.
+    def is_doc_upload(self, output):
+        """Determine whether the Slack RTM output contains a physical doc upload.
         """
-        for output in slack_rtm_output:
-            if self.is_file_upload(output):
-                self.handle_file_upload(output)
-            elif self.is_command(output):
-                self.handle_command(output)
+        if output and 'file' in output:
+            if 'initial_comment' in output['file']:
+                if self.at_bot in output['file']['initial_comment']['comment']:
+                    return True
+
+    def acknowledge_command(self, channel):
+        self.post_to_channel(channel, 'Processing command...')
 
     def keyword_and_params_from_text(self, text):
         """Parse keyword and params from the text field of the Slack response.

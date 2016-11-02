@@ -28,6 +28,7 @@ Enter these commands in Slack when @Synapse is in channel.
 
 #### Add photo ID
 ```
+# as the comment text for the image
 @synapse add_photo_id
 ```
 
@@ -41,7 +42,7 @@ Enter these commands in Slack when @Synapse is in channel.
 @synapse list transactions from abc123
 ```
 
-#### Send a transaciton
+#### Send a transaction
 ```
 @synapse send 1.00 from 57ec58f786c273449ff1d7b7 to 57fd22e586c273420cd847d1 in 2 days
 ```
