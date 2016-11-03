@@ -34,20 +34,26 @@ Enter these commands in Slack when @Synapse is in channel.
 
 #### Add node
 ```
+@synapse add_node nickname Happy Checking | account 112222555 | routing 051000017 | type CHECKING
 @synapse add_node nickname Rainy Day Fund | account 2222222222 | routing 051000017 | type SAVINGS
+```
+
+#### Verify a node's microdeposits
+```
+@synapse verify NODE_ID 0.1 0.1
 ```
 
 #### List nodes
 ```
-@synapse list nodes
+@synapse list_nodes
 ```
 
 #### List transactions
 ```
-@synapse list transactions from abc123
+@synapse list_transactions from FROM_NODE_ID
 ```
 
 #### Send a transaction
 ```
-@synapse send 1.00 from 57ec58f786c273449ff1d7b7 to 57fd22e586c273420cd847d1 in 2 days
+@synapse send 1.00 from SENDING_NODE_ID to RECEIVING_NODE_ID in 2 days
 ```

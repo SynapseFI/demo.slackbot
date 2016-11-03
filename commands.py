@@ -43,8 +43,7 @@ def register(slack_user_id, params):
     user = User(slack_user_id, synapse_user.id)
     db.session.add(user)
     db.session.commit()
-    return 'User created - {0} (user_id: {1})'.format(synapse_user.legal_names[0],
-                                                      synapse_user.id)
+    return user_summary(synapse_user)
 
 
 def whoami(slack_user_id, params):
@@ -54,8 +53,7 @@ def whoami(slack_user_id, params):
         - should not choke if the user isn't registered yet
     """
     synapse_user = synapse_user_from_slack_user_id(slack_user_id)
-    return 'You are {0} (user_id: {1})'.format(synapse_user.legal_names[0],
-                                               synapse_user.id)
+    return user_summary(synapse_user)
 
 
 def add_base_doc(slack_user_id, params):
@@ -80,9 +78,8 @@ def add_base_doc(slack_user_id, params):
         address_postal_code=params['zip'],
         address_country_code='US'
     )
-    user = doc.user
-    return ('Base document (document_id: {0}) added for {1} (user_id: {2})'.format(
-            doc.id, name, user.id))
+    synapse_user = doc.user
+    return ('Base document added.\n' + user_summary(synapse_user))
 
 
 def add_physical_doc(slack_user_id, params):
@@ -90,8 +87,8 @@ def add_physical_doc(slack_user_id, params):
     synapse_user = synapse_user_from_slack_user_id(slack_user_id)
     base_doc = synapse_user.base_documents[-1]
     physical_doc = base_doc.add_physical_document(type='GOVT_ID', url=params)
-    return ('GOVT_ID doc (id: {0}) added to base document (id: {1}) for {2} (user_id: {3})'.format(
-            physical_doc.id, base_doc.id, synapse_user.legal_names[0], synapse_user.id))
+    synapse_user = physical_doc.base_document.user
+    return ('*GOVT_ID added.*\n' + user_summary(synapse_user))
 
 
 def add_virtual_doc(slack_user_id, params):
@@ -99,8 +96,8 @@ def add_virtual_doc(slack_user_id, params):
     synapse_user = synapse_user_from_slack_user_id(slack_user_id)
     base_doc = synapse_user.base_documents[-1]
     virtual_doc = base_doc.add_virtual_document(type='SSN', value=params)
-    return ('SSN doc (id: {0}) added to base document (id: {1}) for {2} (user_id: {3})'.format(
-            virtual_doc.id, base_doc.id, synapse_user.legal_names[0], synapse_user.id))
+    synapse_user = virtual_doc.base_document.user
+    return ('*SSN added.*\n' + user_summary(synapse_user))
 
 
 def add_node(slack_user_id, params):
@@ -111,52 +108,38 @@ def add_node(slack_user_id, params):
                             routing_number=params['routing'],
                             account_type='PERSONAL',
                             account_class=params['type'].upper())
-    return ('ACH-US node (id: {0}) added to {1} (id: {2})'.format(
-            node.id, synapse_user.legal_names[0], synapse_user.id))
+    return ('*Node added.*\n' + node_summary(node))
 
 
-def list_resource(slack_user_id, params):
-    """List the specified resource (node/transaction)."""
-    if params.startswith('nodes'):
-        return list_nodes(slack_user_id)
-    elif params.startswith('transactions'):
-        from_id = word_after(params, 'from')
-        return list_transactions(slack_user_id, from_id)
+def verify_node(slack_user_id, params):
+    synapse_user = synapse_user_from_slack_user_id(slack_user_id)
+    id = first_word(params)
+    node = Node.by_id(user=synapse_user, id=id)
+    amount1 = word_after(params, id)
+    amount2 = word_after(params, amount1)
+    node = node.verify_microdeposits(amount1=amount1, amount2=amount2)
+    return ('*Node verified.*\n' + node_summary(node))
 
 
-def list_nodes(slack_user_id):
+def list_nodes(slack_user_id, params):
     """Return the user's Synapse nodes."""
     synapse_user = synapse_user_from_slack_user_id(slack_user_id)
     nodes = Node.all(user=synapse_user)
-    formatted = ['{0} - {1} (node_id: {2})'.format(node.type,
-                                                   node.nickname,
-                                                   node.id)
-                 for node in nodes]
-    if formatted:
-        return '\n'.join(formatted)
+    if nodes:
+        return '\n'.join([node_summary(node) for node in nodes])
     else:
-        return 'No nodes found for {0} (user_id: {1})'.format(synapse_user.legal_names[0],
-                                                              synapse_user.id)
+        return '*No nodes found for user.*'
 
 
-def list_transactions(slack_user_id, from_id):
+def list_transactions(slack_user_id, params):
     """Return the user's Synapse transactions."""
     synapse_user = synapse_user_from_slack_user_id(slack_user_id)
-    node = Node.by_id(user=synapse_user, id=from_id)
+    node = Node.by_id(user=synapse_user, id=word_after(params, 'from'))
     transactions = Transaction.all(node=node)
-    formatted = ["You sent {0} on {1} to {2}'s {3} node "
-                 "(trans_id: {4}).".format(
-                        format_currency(trans.amount),
-                        timestamp_to_string(trans.process_on),
-                        trans.to_info['user']['legal_names'][0],
-                        trans.to_info['type'],
-                        trans.id
-                    )
-                 for trans in transactions]
-    if formatted:
-        return '\n'.join(formatted)
+    if transactions:
+        return '\n'.join([transaction_summary(trans) for trans in transactions])
     else:
-        return 'No transactions found for node_id: {0})'.format(node.id)
+        return '*No transactions found for node.*'.format(node.id)
 
 
 def send(slack_user_id, params):
@@ -165,27 +148,16 @@ def send(slack_user_id, params):
     from_node_id = word_after(params, 'from')
     from_node = Node.by_id(user=synapse_user, id=from_node_id)
     args = {
-        'amount': word_after(params, 'send'),
+        'amount': first_word(params),
         'to_id': word_after(params, 'to'),
-        'to_type': 'SYNAPSE-US',
+        'to_type': 'ACH-US',
         'currency': 'USD',
-        'ip': '127.0.0.1'
+        'ip': server_ip
     }
     if 'on' in params:
         args['process_in'] = word_after(params, 'in')
     transaction = Transaction.create(from_node, **args)
-    return (
-        "Created ${0} transaction from {1}'s {2} node to {3}'s {4} node.\n"
-        "Scheduled for {5}.\nCurrent status: {6}.".format(
-            format_currency(transaction.amount),
-            transaction.from_info['user']['legal_names'][0],
-            transaction.from_info['type'],
-            transaction.to_info['user']['legal_names'][0],
-            transaction.to_info['type'],
-            timestamp_to_string(transaction.process_on),
-            transaction.recent_status['note']
-        )
-    )
+    return ('*Transaction created.*\n' + transaction_summary(transaction))
 
 
 # helpers
@@ -202,6 +174,10 @@ def format_currency(amount):
     if len(cents) == 1:
         str_format += '0'
     return str_format
+
+
+def first_word(sentence):
+    return sentence.split(' ', 1)[0]
 
 
 def word_after(sentence, word):
@@ -222,3 +198,36 @@ def bday_string_to_ints(bday):
     """Split mm/dd/yy(yy) into separate m, d, and y fields."""
     month, day, year = [int(num) for num in bday.split('/')]
     return (month, day, year)
+
+
+def user_summary(synapse_user):
+    return ('```'
+            'Synapse user details:\n'
+            'user id: {0}\n'.format(synapse_user.id) +
+            'name: {0}\n'.format(synapse_user.legal_names[0]) +
+            'permissions: {0}\n'.format(synapse_user.permission) +
+            '```')
+
+
+def node_summary(node):
+    return ('```'
+            'Synapse node details:\n'
+            'node id: {0}\n'.format(node.id) +
+            'nickname: {0}\n'.format(node.nickname) +
+            'type: {0}\n'.format(node.account_class) +
+            'permissions: {0}\n'.format(node.permission) +
+            '```')
+
+
+def transaction_summary(trans):
+    return('```'
+           'Synapse transaction details:\n'
+           'trans id: {0}\n'.format(trans.id) +
+           'from node id: {0}\n'.format(trans.node.id) +
+           'to name: {0}\n'.format(trans.to_info['user']['legal_names'][0]) +
+           'to node id: {0}\n'.format(trans.to_id) +
+           'amount: {0}\n'.format(format_currency(trans.amount)) +
+           'status: {0}\n'.format(trans.recent_status['note']) +
+           'created_on: {0}\n'.format(timestamp_to_string(trans.created_on)) +
+           'process on: {0}\n'.format(timestamp_to_string(trans.process_on)) +
+           '```')

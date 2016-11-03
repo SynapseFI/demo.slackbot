@@ -1,9 +1,10 @@
 import sys
 import re
+import traceback
 from synapse_pay_rest.errors import SynapsePayError
-from synapse_pay_rest.models.nodes import AchUsNode
 from commands import (add_base_doc, add_node, add_physical_doc,
-                      add_virtual_doc, list_resource, register, send, whoami)
+                      add_virtual_doc, list_nodes, list_transactions,
+                      register, send, verify_node, whoami)
 
 
 class SynapseBot():
@@ -12,9 +13,11 @@ class SynapseBot():
         'add_node': add_node,
         'add_photo_id': add_physical_doc,
         'add_ssn': add_virtual_doc,
-        'list': list_resource,
+        'list_nodes': list_nodes,
+        'list_transactions': list_transactions,
         'register': register,
         'send': send,
+        'verify': verify_node,
         'whoami': whoami
     }
 
@@ -63,10 +66,10 @@ class SynapseBot():
         url = output['file']['permalink']
 
         if keyword in comment:
-            self.execute_command(command=self.COMMANDS[keyword],
-                                 user=output['user'],
-                                 params=url,
-                                 channel=output['channel'])
+            response= self.execute_command(command=self.COMMANDS[keyword],
+                                           user=output['user'],
+                                           params=url,
+                                           channel=output['channel'])
         else:
             response = 'Not sure what you mean. Try the *add_photo_id* command?'
         self.post_to_channel(output['channel'], response)
@@ -80,8 +83,9 @@ class SynapseBot():
                 'An HTTP error occurred while trying to communicate with '
                 'the Synapse API:\n{0}'.format(e.message)
             )
-        except:
-            response = 'An error occurred:\n{0}'.format(sys.exc_info())
+        except Exception as e:
+            traceback.print_tb(e.__traceback__)
+            response = 'An error occurred:\n{0}'.format(sys.exc_info()[1])
         return response
 
     def is_command(self, output):
