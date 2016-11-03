@@ -1,13 +1,15 @@
 import sys
 import re
 from synapse_pay_rest.errors import SynapsePayError
-from commands import (add_base_doc, add_physical_doc, add_virtual_doc,
-                      list_resource, register, send, whoami)
+from synapse_pay_rest.models.nodes import AchUsNode
+from commands import (add_base_doc, add_node, add_physical_doc,
+                      add_virtual_doc, list_resource, register, send, whoami)
 
 
 class SynapseBot():
     COMMANDS = {
         'add_address': add_base_doc,
+        'add_node': add_node,
         'add_photo_id': add_physical_doc,
         'add_ssn': add_virtual_doc,
         'list': list_resource,

@@ -2,6 +2,7 @@
 import datetime
 import os
 from synapse_pay_rest import Client, Node, Transaction
+from synapse_pay_rest.models.nodes import AchUsNode
 from synapse_pay_rest import User as SynapseUser
 from db_config import db
 from models import User
@@ -20,18 +21,7 @@ synapse_client = Client(
 )
 
 
-def whoami(slack_user_id, params, **kwargs):
-    """Return info on the user.
-
-    TODO:
-        - should not choke if the user isn't registered yet
-    """
-    synapse_user = synapse_user_from_slack_user_id(slack_user_id)
-    return 'You are {0} (user_id: {1})'.format(synapse_user.legal_names[0],
-                                               synapse_user.id)
-
-
-def register(slack_user_id, params, **kwargs):
+def register(slack_user_id, params):
     """Create a new user with Synapse.
 
     TODO:
@@ -57,7 +47,18 @@ def register(slack_user_id, params, **kwargs):
                                                       synapse_user.id)
 
 
-def add_base_doc(slack_user_id, params, **kwargs):
+def whoami(slack_user_id, params):
+    """Return info on the user.
+
+    TODO:
+        - should not choke if the user isn't registered yet
+    """
+    synapse_user = synapse_user_from_slack_user_id(slack_user_id)
+    return 'You are {0} (user_id: {1})'.format(synapse_user.legal_names[0],
+                                               synapse_user.id)
+
+
+def add_base_doc(slack_user_id, params):
     """Add Synapse CIP base document to user."""
     synapse_user = synapse_user_from_slack_user_id(slack_user_id)
     name = synapse_user.legal_names[0]
@@ -84,7 +85,7 @@ def add_base_doc(slack_user_id, params, **kwargs):
             doc.id, name, user.id))
 
 
-def add_physical_doc(slack_user_id, params, **kwargs):
+def add_physical_doc(slack_user_id, params):
     """Upload a physical doc for user's CIP."""
     synapse_user = synapse_user_from_slack_user_id(slack_user_id)
     base_doc = synapse_user.base_documents[-1]
@@ -93,7 +94,7 @@ def add_physical_doc(slack_user_id, params, **kwargs):
             physical_doc.id, base_doc.id, synapse_user.legal_names[0], synapse_user.id))
 
 
-def add_virtual_doc(slack_user_id, params, **kwargs):
+def add_virtual_doc(slack_user_id, params):
     """Add a virtual doc for user's CIP."""
     synapse_user = synapse_user_from_slack_user_id(slack_user_id)
     base_doc = synapse_user.base_documents[-1]
@@ -102,7 +103,19 @@ def add_virtual_doc(slack_user_id, params, **kwargs):
             virtual_doc.id, base_doc.id, synapse_user.legal_names[0], synapse_user.id))
 
 
-def list_resource(slack_user_id, params, **kwargs):
+def add_node(slack_user_id, params):
+    synapse_user = synapse_user_from_slack_user_id(slack_user_id)
+    node = AchUsNode.create(synapse_user,
+                            nickname=params['nickname'],
+                            account_number=params['account'],
+                            routing_number=params['routing'],
+                            account_type='PERSONAL',
+                            account_class=params['type'].upper())
+    return ('ACH-US node (id: {0}) added to {1} (id: {2})'.format(
+            node.id, synapse_user.legal_names[0], synapse_user.id))
+
+
+def list_resource(slack_user_id, params):
     """List the specified resource (node/transaction)."""
     if params.startswith('nodes'):
         return list_nodes(slack_user_id)
@@ -111,7 +124,7 @@ def list_resource(slack_user_id, params, **kwargs):
         return list_transactions(slack_user_id, from_id)
 
 
-def list_nodes(slack_user_id, **kwargs):
+def list_nodes(slack_user_id):
     """Return the user's Synapse nodes."""
     synapse_user = synapse_user_from_slack_user_id(slack_user_id)
     nodes = Node.all(user=synapse_user)
@@ -126,7 +139,7 @@ def list_nodes(slack_user_id, **kwargs):
                                                               synapse_user.id)
 
 
-def list_transactions(slack_user_id, from_id, **kwargs):
+def list_transactions(slack_user_id, from_id):
     """Return the user's Synapse transactions."""
     synapse_user = synapse_user_from_slack_user_id(slack_user_id)
     node = Node.by_id(user=synapse_user, id=from_id)
@@ -146,7 +159,7 @@ def list_transactions(slack_user_id, from_id, **kwargs):
         return 'No transactions found for node_id: {0})'.format(node.id)
 
 
-def send(slack_user_id, params, **kwargs):
+def send(slack_user_id, params):
     """Create a Synapse transaction."""
     synapse_user = synapse_user_from_slack_user_id(slack_user_id)
     from_node_id = word_after(params, 'from')

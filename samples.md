@@ -32,6 +32,11 @@ Enter these commands in Slack when @Synapse is in channel.
 @synapse add_photo_id
 ```
 
+#### Add node
+```
+@synapse add_node nickname Rainy Day Fund | account 2222222222 | routing 051000017 | type SAVINGS
+```
+
 #### List nodes
 ```
 @synapse list nodes
