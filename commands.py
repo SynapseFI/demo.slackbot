@@ -38,7 +38,7 @@ def register(slack_user_id, params):
     synapse_user = SynapseUser.create(client=synapse_client,
                                       email=params['email'],
                                       phone_number=params['phone'],
-                                      legal_name=params['name'],
+                                      legal_name=params['name'].title(),
                                       **options)
     user = User(slack_user_id, synapse_user.id)
     db.session.add(user)
@@ -63,8 +63,8 @@ def add_base_doc(slack_user_id, params):
     day, month, year = bday_string_to_ints(params['dob'])
     doc = synapse_user.add_base_document(
         ip=server_ip,
-        name=name,
-        alias=name,
+        name=name.title(),
+        alias=name.title(),
         birth_day=day,
         birth_month=month,
         birth_year=year,
@@ -72,14 +72,14 @@ def add_base_doc(slack_user_id, params):
         phone_number=synapse_user.phone_numbers[0],
         entity_type='NOT_KNOWN',
         entity_scope='Not Known',
-        address_street=params['street'],
-        address_city=params['city'],
-        address_subdivision=params['state'],
+        address_street=params['street'].title(),
+        address_city=params['city'].title(),
+        address_subdivision=params['state'].upper(),
         address_postal_code=params['zip'],
         address_country_code='US'
     )
     synapse_user = doc.user
-    return ('Base document added.\n' + user_summary(synapse_user))
+    return ('*Base document added.*\n' + user_summary(synapse_user))
 
 
 def add_physical_doc(slack_user_id, params):
@@ -103,7 +103,7 @@ def add_virtual_doc(slack_user_id, params):
 def add_node(slack_user_id, params):
     synapse_user = synapse_user_from_slack_user_id(slack_user_id)
     node = AchUsNode.create(synapse_user,
-                            nickname=params['nickname'],
+                            nickname=params['nickname'].title(),
                             account_number=params['account'],
                             routing_number=params['routing'],
                             account_type='PERSONAL',
@@ -202,7 +202,6 @@ def bday_string_to_ints(bday):
 
 def user_summary(synapse_user):
     return ('```'
-            'Synapse user details:\n'
             'user id: {0}\n'.format(synapse_user.id) +
             'name: {0}\n'.format(synapse_user.legal_names[0]) +
             'permissions: {0}\n'.format(synapse_user.permission) +
@@ -211,7 +210,6 @@ def user_summary(synapse_user):
 
 def node_summary(node):
     return ('```'
-            'Synapse node details:\n'
             'node id: {0}\n'.format(node.id) +
             'nickname: {0}\n'.format(node.nickname) +
             'type: {0}\n'.format(node.account_class) +
@@ -221,7 +219,6 @@ def node_summary(node):
 
 def transaction_summary(trans):
     return('```'
-           'Synapse transaction details:\n'
            'trans id: {0}\n'.format(trans.id) +
            'from node id: {0}\n'.format(trans.node.id) +
            'to name: {0}\n'.format(trans.to_info['user']['legal_names'][0]) +
