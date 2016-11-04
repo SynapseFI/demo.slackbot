@@ -4,7 +4,7 @@ import os
 from synapse_pay_rest import Client, Node, Transaction
 from synapse_pay_rest.models.nodes import AchUsNode
 from synapse_pay_rest import User as SynapseUser
-from db_config import db
+from config import db
 from models import User
 
 # temporary
@@ -22,11 +22,10 @@ synapse_client = Client(
 
 
 def register(slack_user_id, params):
-    """Create a new user with Synapse.
+    """Create a new user with Synapse and return user info.
 
     TODO:
-        - accept these as separate msgs instead of | delimited (?)
-        - don't let a user register more than once
+        - accept these as separate msgs instead of | delimited
     """
     # these 'options' actually required until pending API update or lib change
     options = {
@@ -57,7 +56,7 @@ def whoami(slack_user_id, params):
 
 
 def add_base_doc(slack_user_id, params):
-    """Add Synapse CIP base document to user."""
+    """Add Synapse CIP base document to user and return user info."""
     synapse_user = synapse_user_from_slack_user_id(slack_user_id)
     name = synapse_user.legal_names[0]
     day, month, year = bday_string_to_ints(params['dob'])
@@ -92,7 +91,7 @@ def add_physical_doc(slack_user_id, params):
 
 
 def add_virtual_doc(slack_user_id, params):
-    """Add a virtual doc for user's CIP."""
+    """Add a virtual doc for user's CIP and return user info."""
     synapse_user = synapse_user_from_slack_user_id(slack_user_id)
     base_doc = synapse_user.base_documents[-1]
     virtual_doc = base_doc.add_virtual_document(type='SSN', value=params)
@@ -101,6 +100,7 @@ def add_virtual_doc(slack_user_id, params):
 
 
 def add_node(slack_user_id, params):
+    """Add a node to the user in Synapse and return node info."""
     synapse_user = synapse_user_from_slack_user_id(slack_user_id)
     node = AchUsNode.create(synapse_user,
                             nickname=params['nickname'].title(),
@@ -112,6 +112,7 @@ def add_node(slack_user_id, params):
 
 
 def verify_node(slack_user_id, params):
+    """Activate a node with Synapse via microdeposits and return node info."""
     synapse_user = synapse_user_from_slack_user_id(slack_user_id)
     id = first_word(params)
     node = Node.by_id(user=synapse_user, id=id)
@@ -122,7 +123,7 @@ def verify_node(slack_user_id, params):
 
 
 def list_nodes(slack_user_id, params):
-    """Return the user's Synapse nodes."""
+    """Return information on the the user's Synapse nodes."""
     synapse_user = synapse_user_from_slack_user_id(slack_user_id)
     nodes = Node.all(user=synapse_user)
     if nodes:
@@ -132,7 +133,7 @@ def list_nodes(slack_user_id, params):
 
 
 def list_transactions(slack_user_id, params):
-    """Return the user's Synapse transactions."""
+    """Return information on the the Synapse nodes's transactions."""
     synapse_user = synapse_user_from_slack_user_id(slack_user_id)
     node = Node.by_id(user=synapse_user, id=word_after(params, 'from'))
     transactions = Transaction.all(node=node)
@@ -143,7 +144,7 @@ def list_transactions(slack_user_id, params):
 
 
 def send(slack_user_id, params):
-    """Create a Synapse transaction."""
+    """Create a Synapse transaction from one node to another."""
     synapse_user = synapse_user_from_slack_user_id(slack_user_id)
     from_node_id = word_after(params, 'from')
     from_node = Node.by_id(user=synapse_user, id=from_node_id)
@@ -162,7 +163,7 @@ def send(slack_user_id, params):
 
 # helpers
 def synapse_user_from_slack_user_id(slack_user_id):
-    """Find user's synapse id and get the Synapse user."""
+    """Find the Slack user's Synapse id and get the Synapse user."""
     user = User.query.filter(User.slack_user_id==slack_user_id).all()[-1]
     return SynapseUser.by_id(client=synapse_client, id=user.synapse_user_id)
 
@@ -177,6 +178,7 @@ def format_currency(amount):
 
 
 def first_word(sentence):
+    """Return first word of a string."""
     return sentence.split(' ', 1)[0]
 
 
@@ -201,6 +203,7 @@ def bday_string_to_ints(bday):
 
 
 def user_summary(synapse_user):
+    """Return Markdown formatted user info."""
     return ('```'
             'user id: {0}\n'.format(synapse_user.id) +
             'name: {0}\n'.format(synapse_user.legal_names[0]) +
@@ -209,6 +212,7 @@ def user_summary(synapse_user):
 
 
 def node_summary(node):
+    """Return Markdown formatted node info."""
     return ('```'
             'node id: {0}\n'.format(node.id) +
             'nickname: {0}\n'.format(node.nickname) +
@@ -218,6 +222,7 @@ def node_summary(node):
 
 
 def transaction_summary(trans):
+    """Return Markdown formatted transaction info."""
     return('```'
            'trans id: {0}\n'.format(trans.id) +
            'from node id: {0}\n'.format(trans.node.id) +
