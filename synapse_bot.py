@@ -8,17 +8,58 @@ from commands import (add_base_doc, add_node, add_physical_doc,
 
 
 class SynapseBot():
+    """Parses and converts Slack commands into Synapse API calls."""
     COMMANDS = {
-        'add_address': add_base_doc,
-        'add_node': add_node,
-        'add_photo_id': add_physical_doc,
-        'add_ssn': add_virtual_doc,
-        'list_nodes': list_nodes,
-        'list_transactions': list_transactions,
-        'register': register,
-        'send': send,
-        'verify': verify_node,
-        'whoami': whoami
+        'add_address': {
+            'function_name': add_base_doc,
+            'help_text': '@synapse add_address street `[street address]` | city `[city]` | state `[state abbreviation]` | zip `[zip]` | dob `[mm/dd/yyyy]`',
+            'description': "Provide the user's address:"
+        },
+        'add_node': {
+            'function_name': add_node,
+            'help_text': '@synapse add_node nickname `[nickname]` | account `[account number]` | routing `[routing number]` | type `[CHECKING / SAVINGS]`',
+            'description': "Associate a bank account with the user:"
+        },
+        'add_photo_id': {
+            'function_name': add_physical_doc,
+            'help_text': '@synapse add_photo_id',
+            'description': "Provide the user's photo ID by uploading a file with this comment"
+        },
+        'add_ssn': {
+            'function_name': add_virtual_doc,
+            'help_text': '@synapse add_ssn `[last four digits of ssn]`',
+            'description': "Provide the user's SSN:"
+        },
+        'list_nodes': {
+            'function_name': list_nodes,
+            'help_text': '@synapse list_nodes',
+            'description': "List the bank accounts associated with the user:"
+        },
+        'list_transactions': {
+            'function_name': list_transactions,
+            'help_text': '@synapse list_transactions from `[id of sending node]`',
+            'description': "List the transactions sent from a specific node:"
+        },
+        'register': {
+            'function_name': register,
+            'help_text': '@synapse register name `[first last]` | email `[email address]` | phone `[phone number]`',
+            'description': "Register a user with Synapse:"
+        },
+        'send': {
+            'function_name': send,
+            'help_text': '@synapse send `[amount]` from `[id of sending node]` to `[id of receiving node]` (*optional* in `[number]` days)',
+            'description': "Create a transaction to move funds from one node to another:"
+        },
+        'verify': {
+            'function_name': verify_node,
+            'help_text': '@synapse verify `[node id]` `[microdeposit amount 1]` `[microdeposit amount 2]`',
+            'description': "Enable a node to send funds by verifying correct microdeposit amounts:"
+        },
+        'whoami': {
+            'function_name': whoami,
+            'help_text': '@synapse whoami',
+            'description': "Return basic information about the Synapse user:"
+        }
     }
 
     def __init__(self, slack_client, bot_id):
@@ -28,8 +69,10 @@ class SynapseBot():
 
     def help(self):
         """List the available bot commands."""
-        return ('Available statements:\n' +
-                '\n'.join([keyword for keyword in self.COMMANDS]))
+        help_strings = ['*{0}*\n'.format(self.COMMANDS[keyword]['description']) +
+                        '>{0}'.format(self.COMMANDS[keyword]['help_text'])
+                        for keyword in self.COMMANDS]
+        return '\n\n'.join(help_strings)
 
     def post_to_channel(self, channel, text):
         """Post a message to the channel."""
@@ -51,7 +94,8 @@ class SynapseBot():
         if keyword == 'help':
             response = self.help()
         elif keyword in self.COMMANDS:
-            response = self.execute_command(command=self.COMMANDS[keyword],
+            command = self.COMMANDS[keyword]['function_name']
+            response = self.execute_command(command=command,
                                             user=output['user'],
                                             params=params,
                                             channel=output['channel'])
@@ -66,10 +110,11 @@ class SynapseBot():
         url = output['file']['permalink']
 
         if keyword in comment:
-            response= self.execute_command(command=self.COMMANDS[keyword],
-                                           user=output['user'],
-                                           params=url,
-                                           channel=output['channel'])
+            command = self.COMMANDS[keyword]['function_name']
+            response = self.execute_command(command=command,
+                                            user=output['user'],
+                                            params=url,
+                                            channel=output['channel'])
         else:
             response = 'Not sure what you mean. Try the *add_photo_id* command?'
         self.post_to_channel(output['channel'], response)
