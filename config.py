@@ -10,7 +10,6 @@ database = 'slackbot'
 db_uri = 'postgresql://{0}:{1}@{2}:{3}/{4}'.format(username, password, host,
                                                    port, database)
 
-# configure Flask and postgres db
 app = Flask(__name__)
 app.config['DEBUG'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
