@@ -1,7 +1,9 @@
+"""Database initialization settings and logic."""
 from flask_sqlalchemy import SQLAlchemy
 
 
 def initialize_db(**kwargs):
+    """Link the app database to a postgres db with the supplied info."""
     db_uri = 'postgresql://{0}:{1}@{2}:{3}/{4}'.format(kwargs.get('username'),
                                                        kwargs.get('password'),
                                                        kwargs.get('host'),

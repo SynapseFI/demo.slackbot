@@ -1,3 +1,4 @@
+"""General settings and database initialization."""
 import os
 from flask import Flask
 from slackclient import SlackClient

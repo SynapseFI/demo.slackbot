@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Start event loop."""
 import time
 import os
 from .config import slack_client

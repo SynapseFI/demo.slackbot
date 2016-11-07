@@ -1,5 +1,5 @@
 ## Slackbot commands
-Enter these commands in Slack when @Synapse is in channel.
+Enter these commands in Slack when @synapse is in the channel.
 
 #### Help
 ```

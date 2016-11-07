@@ -3,7 +3,7 @@ from synapse_slackbot.config import db
 
 
 class User(db.Model):
-    """Store Slack user id and Synapse user id."""
+    """Store Slack user id and Synapse user id together."""
     slack_user_id = db.Column(db.String(15), primary_key=True)
     synapse_user_id = db.Column(db.String(30), unique=True)
 
