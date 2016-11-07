@@ -1,13 +1,9 @@
 """SQLAlchemy models."""
-from config import db
+from synapse_slackbot.config import db
 
 
 class User(db.Model):
-    """Store slack user id and synapse user id.
-
-    Todo:
-        - Index slack_user_id
-    """
+    """Store Slack user id and Synapse user id."""
     slack_user_id = db.Column(db.String(15), primary_key=True)
     synapse_user_id = db.Column(db.String(30), unique=True)
 

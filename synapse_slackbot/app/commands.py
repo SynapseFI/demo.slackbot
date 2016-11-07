@@ -1,31 +1,18 @@
 """Commands that can be called by Synapse slackbot."""
 import datetime
-import os
-from synapse_pay_rest import Client, Node, Transaction
+from synapse_pay_rest import Node, Transaction
 from synapse_pay_rest.models.nodes import AchUsNode
 from synapse_pay_rest import User as SynapseUser
-from config import db
-from models import User
-
-# temporary
-server_ip = '127.0.0.1'
-
-# initialize synapse client
-synapse_client = Client(
-    client_id=os.environ['CLIENT_ID'],
-    client_secret=os.environ['CLIENT_SECRET'],
-    fingerprint=os.environ['FINGERPRINT'],
-    ip_address=server_ip,
-    logging=True,
-    development_mode=True
-)
+from synapse_slackbot.config import db
+from .models import User
+from .synapse_client import synapse_client
 
 
 def register(slack_user_id, params):
     """Create a new user with Synapse and return user info.
 
     TODO:
-        - accept these as separate msgs instead of | delimited
+        - accept these as separate msgs instead of '|' delimited
     """
     for required in ['email', 'phone', 'name']:
         if not params or required not in params:
@@ -75,7 +62,7 @@ def add_base_doc(slack_user_id, params):
             return invalid_params_warning('add_address')
     name = synapse_user.legal_names[0]
     doc = synapse_user.add_base_document(
-        ip=server_ip,
+        ip='127.0.0.1',
         name=name.title(),
         alias=name.title(),
         birth_day=day,
@@ -197,9 +184,9 @@ def send(slack_user_id, params):
         'to_id': to_id,
         'to_type': 'ACH-US',
         'currency': 'USD',
-        'ip': server_ip
+        'ip': '127.0.0.1'
     }
-    if 'on' in params:
+    if 'in' in params:
         args['process_in'] = word_after(params, 'in')
     transaction = Transaction.create(from_node, **args)
     return ('*Transaction created.*\n' + transaction_summary(transaction))

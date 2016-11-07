@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
-import os
 import time
-from slackclient import SlackClient
-from synapse_bot import SynapseBot
+import os
+from .config import slack_client
+from .app.synapse_bot import SynapseBot
 
-# configure slackbot
-slack_client = SlackClient(os.environ.get('SLACKBOT_TOKEN'))
-slackbot_id = os.environ.get('SLACKBOT_ID')
-synapse_bot = SynapseBot(slack_client, slackbot_id)
+synapse_bot = SynapseBot(slack_client, os.environ.get('SLACKBOT_ID'))
 
 # second delay between reading from Slack RTM firehose
 READ_WEBSOCKET_DELAY = 1

@@ -1,1 +1,1 @@
-web: gunicorn app:app --log-file=- --log-level "debug" --timeout 120
+web: gunicorn run:app --log-file=- --log-level "debug" --timeout 120

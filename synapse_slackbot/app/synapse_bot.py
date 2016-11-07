@@ -2,9 +2,7 @@ import sys
 import re
 import traceback
 from synapse_pay_rest.errors import SynapsePayError
-from commands import (COMMANDS, add_base_doc, add_node, add_physical_doc,
-                      add_virtual_doc, list_nodes, list_transactions,
-                      register, send, verify_node, whoami)
+from .commands_directory import COMMANDS
 
 
 class SynapseBot():
@@ -32,7 +30,7 @@ class SynapseBot():
                                    text=text, as_user=True)
 
     def parse_slack_output(self, slack_rtm_output):
-        """Monitor Slack messages for bot mentions and react if found."""
+        """Monitor Slack messages for @synapse mentions and react if found."""
         for output in slack_rtm_output:
             if self.is_doc_upload(output):
                 self.handle_doc_upload(output)
@@ -139,7 +137,7 @@ class SynapseBot():
         """Return the hyperlink-laden string with hyperlinks removed.
 
         TODO:
-            - Probably a DRY-er way to sub with capture value in single step.
+            - DRY-er way to sub with capture value in single step.
         """
         purged = raw
         email_pattern = r'<mailto:\S+\|(\S+)>'
