@@ -2,7 +2,7 @@ import sys
 import re
 import traceback
 from synapse_pay_rest.errors import SynapsePayError
-from .commands_directory import COMMANDS
+from .commands import COMMANDS
 
 
 class SynapseBot():
