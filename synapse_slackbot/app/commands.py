@@ -4,7 +4,7 @@ from synapse_pay_rest import Node, Transaction
 from synapse_pay_rest.models.nodes import AchUsNode
 from synapse_pay_rest import User as SynapseUser
 from synapse_slackbot.config import db
-from .models import User
+from .models import User, RecurringTransaction
 from .synapse_client import synapse_client
 
 
@@ -178,6 +178,15 @@ def send(slack_user_id, params):
     to_id = word_after(params, 'to')
     if not amount or not from_id or not to_id:
         return invalid_params_warning('send')
+    if 'every' in params:
+        periodicity = word_after(params, 'every')
+        trans = create_recurring_transaction(amount=amount,
+                                             from_id=from_id,
+                                             to_id=to_id,
+                                             periodicity=periodicity,
+                                             slack_user_id=slack_user_id)
+        return ('*Recurring transaction created.*\n' +
+                recurring_transaction_summary(trans))
     from_node = Node.by_id(user=synapse_user, id=from_id)
     args = {
         'amount': amount,
@@ -190,6 +199,17 @@ def send(slack_user_id, params):
         args['process_in'] = word_after(params, 'in')
     transaction = Transaction.create(from_node, **args)
     return ('*Transaction created.*\n' + transaction_summary(transaction))
+
+
+def create_recurring_transaction(**kwargs):
+    trans = RecurringTransaction(amount=kwargs['amount'],
+                                 from_node_id=kwargs['from_id'],
+                                 to_node_id=kwargs['to_id'],
+                                 periodicity=kwargs['periodicity'],
+                                 slack_user_id=kwargs['slack_user_id'])
+    db.session.add(trans)
+    db.session.commit()
+    return trans
 
 
 COMMANDS = {
@@ -340,6 +360,16 @@ def transaction_summary(trans):
            'created_on: {0}\n'.format(timestamp_to_string(trans.created_on)) +
            'process on: {0}\n'.format(timestamp_to_string(trans.process_on)) +
            '```')
+
+
+def recurring_transaction_summary(recurring):
+    """Return Markdown formatted RecurringTransaction info."""
+    return ('```'
+            'amount: {0}\n'.format(recurring.amount) +
+            'from_node_id: {0}\n'.format(recurring.from_node_id) +
+            'to_node_id: \n'.format(recurring.to_node_id) +
+            'periodicity: every {0} days\n'.format(recurring.periodicity) +
+            '```')
 
 
 def registration_warning():

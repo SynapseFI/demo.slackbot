@@ -38,6 +38,6 @@ class RecurringTransaction(db.Model):
         self.slack_user_id = kwargs['slack_user_id']
 
     def __repr__(self):
-        return ('<RecurringTransaction %r from %r to %r every %r days (User: '
-                '%r)'.format(self.amount, self.from_node_id, self.to_node_id,
-                             self.periodicity))
+        return ('<RecurringTransaction %r from %r to %r every %r days (User: %r)' %
+                (self.amount, self.from_node_id, self.to_node_id,
+                    self.periodicity, self.slack_user_id))
