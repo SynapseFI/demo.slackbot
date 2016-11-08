@@ -55,5 +55,15 @@ Enter these commands in Slack when @synapse is in the channel.
 
 #### Send a transaction
 ```
+@synapse send 1.00 from SENDING_NODE_ID to RECEIVING_NODE_ID
+```
+
+#### Schedule a transaction (in days only)
+```
 @synapse send 1.00 from SENDING_NODE_ID to RECEIVING_NODE_ID in 2 days
+```
+
+#### Set up a recurring transaction (in days only)
+```
+@synapse send 1.00 from SENDING_NODE_ID to RECEIVING_NODE_ID every 30 days
 ```
