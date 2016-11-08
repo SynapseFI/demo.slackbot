@@ -8,7 +8,7 @@ Enter these commands in Slack when @synapse is in the channel.
 
 #### Register new user
 ```
-@synapse register name steven broderick | email steven@synapsepay.com | phone 555-555-5555
+@synapse register name Steven Broderick | email steven@synapsepay.com | phone 555-555-5555
 ```
 
 #### See your user info
@@ -18,7 +18,7 @@ Enter these commands in Slack when @synapse is in the channel.
 
 #### Add address
 ```
-@synapse add_address street 123 capitol dr | city san francisco | state ca | zip 94110 | dob 3/19/86
+@synapse add_address street 742 Evergreen Terrace | city Springfield | state OR | zip 94110 | dob 3/19/1942
 ```
 
 #### Add SSN
@@ -34,7 +34,7 @@ Enter these commands in Slack when @synapse is in the channel.
 
 #### Add node
 ```
-@synapse add_node nickname Happy Checking | account 112222555 | routing 051000017 | type CHECKING
+@synapse add_node nickname Primary Checking | account 112222555 | routing 051000017 | type CHECKING
 @synapse add_node nickname Rainy Day Fund | account 2222222222 | routing 051000017 | type SAVINGS
 ```
 

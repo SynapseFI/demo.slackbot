@@ -357,7 +357,7 @@ def transaction_summary(trans):
            'to node id: {0}\n'.format(trans.to_id) +
            'recipient name: {0}\n'.format(trans.to_info['user']['legal_names'][0]) +
            'status: {0}\n'.format(trans.recent_status['note']) +
-           'created_on: {0}\n'.format(timestamp_to_string(trans.created_on)) +
+           'created on: {0}\n'.format(timestamp_to_string(trans.created_on)) +
            'process on: {0}\n'.format(timestamp_to_string(trans.process_on)) +
            '```')
 
@@ -365,9 +365,9 @@ def transaction_summary(trans):
 def recurring_transaction_summary(recurring):
     """Return Markdown formatted RecurringTransaction info."""
     return ('```'
-            'amount: {0}\n'.format(recurring.amount) +
+            'amount: {0}\n'.format(format_currency(recurring.amount)) +
             'from_node_id: {0}\n'.format(recurring.from_node_id) +
-            'to_node_id: \n'.format(recurring.to_node_id) +
+            'to_node_id: {0}\n'.format(recurring.to_node_id) +
             'periodicity: every {0} days\n'.format(recurring.periodicity) +
             '```')
 
