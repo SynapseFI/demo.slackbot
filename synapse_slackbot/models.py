@@ -1,5 +1,5 @@
 """SQLAlchemy model class definitions."""
-from synapse_slackbot.config import db
+from .config import db
 
 
 class User(db.Model):

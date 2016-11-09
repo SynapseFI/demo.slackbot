@@ -4,36 +4,36 @@ from synapse_pay_rest import Node, Transaction
 from synapse_pay_rest.models.nodes import AchUsNode, SynapseUsNode
 from synapse_pay_rest import User as SynapseUser
 from synapse_slackbot.config import db
-from .models import User, RecurringTransaction
-from .synapse_client import synapse_client
+from synapse_slackbot.models import User, RecurringTransaction
+from synapse_slackbot.synapse_client import synapse_client
 
 
-def register(slack_user_id, params):
-    """Create a new user with Synapse and return user info.
+# def register(slack_user_id, params):
+#     """Create a new user with Synapse and return user info.
 
-    TODO:
-        - accept these as separate msgs instead of '|' delimited
-    """
-    for required in ['email', 'phone', 'name']:
-        if not params or required not in params:
-            return invalid_params_warning('register')
+#     TODO:
+#         - accept these as separate msgs instead of '|' delimited
+#     """
+#     for required in ['email', 'phone', 'name']:
+#         if not params or required not in params:
+#             return invalid_params_warning('register')
 
-    # these 'options' actually required until pending API update or lib change
-    options = {
-        'note': 'created by Synapse Slackbot',
-        'supp_id': slack_user_id,
-        'is_business': False,
-        'cip_tag': 1
-    }
-    synapse_user = SynapseUser.create(client=synapse_client,
-                                      email=params['email'],
-                                      phone_number=params['phone'],
-                                      legal_name=params['name'].title(),
-                                      **options)
-    user = User(slack_user_id, synapse_user.id)
-    db.session.add(user)
-    db.session.commit()
-    return user_summary(synapse_user)
+#     # these 'options' actually required until pending API update or lib change
+#     options = {
+#         'note': 'created by Synapse Slackbot',
+#         'supp_id': slack_user_id,
+#         'is_business': False,
+#         'cip_tag': 1
+#     }
+#     synapse_user = SynapseUser.create(client=synapse_client,
+#                                       email=params['email'],
+#                                       phone_number=params['phone'],
+#                                       legal_name=params['name'].title(),
+#                                       **options)
+#     user = User(slack_user_id, synapse_user.id)
+#     db.session.add(user)
+#     db.session.commit()
+#     return user_summary(synapse_user)
 
 
 def whoami(slack_user_id, params):
@@ -48,91 +48,91 @@ def whoami(slack_user_id, params):
     return user_summary(synapse_user)
 
 
-def add_base_doc(slack_user_id, params):
-    """Add Synapse CIP base document to user and return user info."""
-    synapse_user = synapse_user_from_slack_user_id(slack_user_id)
-    if not synapse_user:
-        return registration_warning()
-    for required in ['street', 'city', 'state', 'zip', 'dob']:
-        if not params or required not in params:
-            return invalid_params_warning('add_address')
-    day, month, year = string_date_to_ints(params['dob'])
-    for required in [day, month, year]:
-        if not required:
-            return invalid_params_warning('add_address')
-    name = synapse_user.legal_names[0]
-    doc = synapse_user.add_base_document(
-        ip='127.0.0.1',
-        name=name.title(),
-        alias=name.title(),
-        birth_day=day,
-        birth_month=month,
-        birth_year=year,
-        email=synapse_user.logins[0]['email'],
-        phone_number=synapse_user.phone_numbers[0],
-        entity_type='NOT_KNOWN',
-        entity_scope='Not Known',
-        address_street=params['street'].title(),
-        address_city=params['city'].title(),
-        address_subdivision=params['state'].upper(),
-        address_postal_code=params['zip'],
-        address_country_code='US'
-    )
-    synapse_user = doc.user
-    return ('*Base document added.*\n' + user_summary(synapse_user))
+# def add_base_doc(slack_user_id, params):
+#     """Add Synapse CIP base document to user and return user info."""
+#     synapse_user = synapse_user_from_slack_user_id(slack_user_id)
+#     if not synapse_user:
+#         return registration_warning()
+#     for required in ['street', 'city', 'state', 'zip', 'dob']:
+#         if not params or required not in params:
+#             return invalid_params_warning('add_address')
+#     day, month, year = string_date_to_ints(params['dob'])
+#     for required in [day, month, year]:
+#         if not required:
+#             return invalid_params_warning('add_address')
+#     name = synapse_user.legal_names[0]
+#     doc = synapse_user.add_base_document(
+#         ip='127.0.0.1',
+#         name=name.title(),
+#         alias=name.title(),
+#         birth_day=day,
+#         birth_month=month,
+#         birth_year=year,
+#         email=synapse_user.logins[0]['email'],
+#         phone_number=synapse_user.phone_numbers[0],
+#         entity_type='NOT_KNOWN',
+#         entity_scope='Not Known',
+#         address_street=params['street'].title(),
+#         address_city=params['city'].title(),
+#         address_subdivision=params['state'].upper(),
+#         address_postal_code=params['zip'],
+#         address_country_code='US'
+#     )
+#     synapse_user = doc.user
+#     return ('*Base document added.*\n' + user_summary(synapse_user))
 
 
-def add_physical_doc(slack_user_id, params):
-    """Upload a physical doc for user's CIP."""
-    synapse_user = synapse_user_from_slack_user_id(slack_user_id)
-    if not synapse_user:
-        return registration_warning()
-    base_doc = synapse_user.base_documents[-1]
-    physical_doc = base_doc.add_physical_document(type='GOVT_ID', url=params)
-    synapse_user = physical_doc.base_document.user
-    return ('*GOVT_ID added.*\n' + user_summary(synapse_user))
+# def add_physical_doc(slack_user_id, params):
+#     """Upload a physical doc for user's CIP."""
+#     synapse_user = synapse_user_from_slack_user_id(slack_user_id)
+#     if not synapse_user:
+#         return registration_warning()
+#     base_doc = synapse_user.base_documents[-1]
+#     physical_doc = base_doc.add_physical_document(type='GOVT_ID', url=params)
+#     synapse_user = physical_doc.base_document.user
+#     return ('*GOVT_ID added.*\n' + user_summary(synapse_user))
 
 
-def add_virtual_doc(slack_user_id, params):
-    """Add a virtual doc for user's CIP and return user info."""
-    synapse_user = synapse_user_from_slack_user_id(slack_user_id)
-    if not synapse_user:
-        return registration_warning()
-    if not params:
-        return invalid_params_warning('add_ssn')
-    if not synapse_user.base_documents:
-        return base_doc_warning()
-    base_doc = synapse_user.base_documents[-1]
-    virtual_doc = base_doc.add_virtual_document(type='SSN', value=params)
-    synapse_user = virtual_doc.base_document.user
-    return ('*SSN added.*\n' + user_summary(synapse_user))
+# def add_virtual_doc(slack_user_id, params):
+#     """Add a virtual doc for user's CIP and return user info."""
+#     synapse_user = synapse_user_from_slack_user_id(slack_user_id)
+#     if not synapse_user:
+#         return registration_warning()
+#     if not params:
+#         return invalid_params_warning('add_ssn')
+#     if not synapse_user.base_documents:
+#         return base_doc_warning()
+#     base_doc = synapse_user.base_documents[-1]
+#     virtual_doc = base_doc.add_virtual_document(type='SSN', value=params)
+#     synapse_user = virtual_doc.base_document.user
+#     return ('*SSN added.*\n' + user_summary(synapse_user))
 
 
-def add_savings_node(slack_user_id, params):
-    """Add a node to the user in Synapse and return node info."""
-    synapse_user = synapse_user_from_slack_user_id(slack_user_id)
-    if not synapse_user:
-        return registration_warning()
-    node = SynapseUsNode.create(synapse_user,
-                                nickname='Synapse Automatic Savings Account')
-    return ('*Node added.*\n' + node_summary(node))
+# def add_savings_node(slack_user_id, params):
+#     """Add a node to the user in Synapse and return node info."""
+#     synapse_user = synapse_user_from_slack_user_id(slack_user_id)
+#     if not synapse_user:
+#         return registration_warning()
+#     node = SynapseUsNode.create(synapse_user,
+#                                 nickname='Synapse Automatic Savings Account')
+#     return ('*Node added.*\n' + node_summary(node))
 
 
-def add_debit_node(slack_user_id, params):
-    """Add a node to the user in Synapse and return node info."""
-    synapse_user = synapse_user_from_slack_user_id(slack_user_id)
-    if not synapse_user:
-        return registration_warning()
-    for required in ['account', 'routing']:
-        if not params or required not in params:
-            return invalid_params_warning('add_node')
-    node = AchUsNode.create(synapse_user,
-                            account_number=params['account'],
-                            routing_number=params['routing'],
-                            nickname='Synapse Automatic Savings Debit Account',
-                            account_type='PERSONAL',
-                            account_class='CHECKING')
-    return ('*Node added.*\n' + node_summary(node))
+# def add_debit_node(slack_user_id, params):
+#     """Add a node to the user in Synapse and return node info."""
+#     synapse_user = synapse_user_from_slack_user_id(slack_user_id)
+#     if not synapse_user:
+#         return registration_warning()
+#     for required in ['account', 'routing']:
+#         if not params or required not in params:
+#             return invalid_params_warning('add_node')
+#     node = AchUsNode.create(synapse_user,
+#                             account_number=params['account'],
+#                             routing_number=params['routing'],
+#                             nickname='Synapse Automatic Savings Debit Account',
+#                             account_type='PERSONAL',
+#                             account_class='CHECKING')
+#     return ('*Node added.*\n' + node_summary(node))
 
 
 def verify_node(slack_user_id, params):
