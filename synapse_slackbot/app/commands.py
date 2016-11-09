@@ -1,7 +1,7 @@
 """Commands that can be called by Synapse slackbot."""
 import datetime
 from synapse_pay_rest import Node, Transaction
-from synapse_pay_rest.models.nodes import AchUsNode
+from synapse_pay_rest.models.nodes import AchUsNode, SynapseUsNode
 from synapse_pay_rest import User as SynapseUser
 from synapse_slackbot.config import db
 from .models import User, RecurringTransaction
@@ -108,20 +108,30 @@ def add_virtual_doc(slack_user_id, params):
     return ('*SSN added.*\n' + user_summary(synapse_user))
 
 
-def add_node(slack_user_id, params):
+def add_savings_node(slack_user_id, params):
     """Add a node to the user in Synapse and return node info."""
     synapse_user = synapse_user_from_slack_user_id(slack_user_id)
     if not synapse_user:
         return registration_warning()
-    for required in ['nickname', 'account', 'routing', 'type']:
+    node = SynapseUsNode.create(synapse_user,
+                                nickname='Synapse Automatic Savings Account')
+    return ('*Node added.*\n' + node_summary(node))
+
+
+def add_debit_node(slack_user_id, params):
+    """Add a node to the user in Synapse and return node info."""
+    synapse_user = synapse_user_from_slack_user_id(slack_user_id)
+    if not synapse_user:
+        return registration_warning()
+    for required in ['account', 'routing']:
         if not params or required not in params:
             return invalid_params_warning('add_node')
     node = AchUsNode.create(synapse_user,
-                            nickname=params['nickname'].title(),
                             account_number=params['account'],
                             routing_number=params['routing'],
+                            nickname='Synapse Automatic Savings Debit Account',
                             account_type='PERSONAL',
-                            account_class=params['type'].upper())
+                            account_class='CHECKING')
     return ('*Node added.*\n' + node_summary(node))
 
 
@@ -221,7 +231,7 @@ COMMANDS = {
         'description': "Provide the user's address:"
     },
     'add_node': {
-        'function_name': add_node,
+        'function_name': add_debit_node,
         'example': ('@synapse add_node nickname `[nickname]` | account '
                     '`[account number]` | routing `[routing number]` | '
                     'type `[CHECKING / SAVINGS]`'),

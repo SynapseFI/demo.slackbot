@@ -17,4 +17,5 @@ db = connect_db(app=app,
                 port=5432,
                 database='slackbot')
 
+# SlackClient config
 slack_client = SlackClient(os.environ.get('SLACKBOT_TOKEN'))

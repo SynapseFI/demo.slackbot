@@ -102,6 +102,8 @@ class SynapseBot():
         """Post a message to channel acknowledging receipt of command."""
         self.post_to_channel(channel, 'Processing command...')
 
+    # helpers
+
     def keyword_and_params_from_text(self, text):
         """Parse keyword and params from the Slack message."""
         try:

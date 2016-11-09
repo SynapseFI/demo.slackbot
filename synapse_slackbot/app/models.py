@@ -7,6 +7,8 @@ class User(db.Model):
     __tablename__ = 'users'
     slack_user_id = db.Column(db.String(15), primary_key=True)
     synapse_user_id = db.Column(db.String(30), unique=True)
+    debit_node_id = db.Column(db.String(30), unique=True)
+    savings_node_id = db.Column(db.String(30), unique=True)
     recurring_transactions = db.relationship('RecurringTransaction',
                                              backref='user')
 
