@@ -6,7 +6,7 @@ from .synapse_client import synapse_client
 
 
 class User(db.Model):
-    """Store Slack user id and Synapse user id together."""
+    """Stores Slack user id with Synapse user id and node info."""
     __tablename__ = 'users'
     slack_user_id = db.Column(db.String(15), primary_key=True)
     synapse_user_id = db.Column(db.String(30), unique=True, nullable=False)
