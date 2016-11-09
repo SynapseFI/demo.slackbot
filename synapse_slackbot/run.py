@@ -20,8 +20,8 @@ def register(slack_id):
     if request.method == 'GET':
         return render_template('register.html', slack_id=slack_id)
     elif request.method == 'POST':
-        process_form(slack_id, request)
-        return None
+        user = process_form(slack_id, request)
+        return str(user)
 
 
 def process_form(slack_id, request):
@@ -100,9 +100,10 @@ def create_user(slack_id, synapse_id, debit_node_id, savings_node_id):
     user = User(slack_id, synapse_id, debit_node_id, savings_node_id)
     db.session.add(user)
     db.session.commit()
+    return user
 
 
-def start_event_loop():
+def start_bot_event_loop():
     """Main event loop for program."""
     # second delay between reading from Slack RTM firehose
     READ_WEBSOCKET_DELAY = 1
@@ -119,4 +120,4 @@ def start_event_loop():
 
 if __name__ == '__main__':
     app.run()
-    _thread.start_new_thread(start_event_loop, ())
+    _thread.start_new_thread(start_bot_event_loop, ())
