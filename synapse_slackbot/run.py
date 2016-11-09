@@ -38,6 +38,7 @@ def create_synapse_user(slack_id, form_data):
         'is_business': False,
         'cip_tag': 1
     }
+
     synapse_user = SynapseUser.create(client=synapse_client,
                                       email=request.form['email'],
                                       phone_number=request.form['phone'],
@@ -64,12 +65,10 @@ def submit_cip(synapse_user, request):
         address_subdivision=request.form['address_state'].upper(),
         address_postal_code=request.form['address_zip'],
         address_country_code='US')
-    v_doc = base_doc.add_virtual_document(type='SSN',
-                                          value=request.form['ssn'])
+    base_doc.add_virtual_document(type='SSN', value=request.form['ssn'])
     img_file = request.files['govt_id']
-    p_doc = base_doc.add_physical_document(type='GOVT_ID',
-                                           mime_type='image/jpeg',
-                                           byte_stream=img_file.read())
+    base_doc.add_physical_document(type='GOVT_ID', mime_type='image/jpeg',
+                                   byte_stream=img_file.read())
 
 
 def create_debit_node(synapse_user, request):
@@ -88,13 +87,13 @@ def create_savings_node(synapse_user, form_data):
                                 nickname='Synapse Automatic Savings Account')
 
 
-def create_user(slack_id, synapse_id, debit_node, savings_node):
+def create_user(slack_id, synapse_id, debit_node_id, savings_node_id):
     user = User(slack_id, synapse_id, debit_node_id, savings_node_id)
     db.session.add(user)
     db.session.commit()
 
 
-def startEventLoop():
+def start_event_loop():
     # second delay between reading from Slack RTM firehose
     READ_WEBSOCKET_DELAY = 1
     if slack_client.rtm_connect():
@@ -110,4 +109,4 @@ def startEventLoop():
 
 if __name__ == '__main__':
     app.run()
-    _thread.start_new_thread(startEventLoop, ())
+    _thread.start_new_thread(start_event_loop, ())
