@@ -16,21 +16,26 @@ synapse_bot = SynapseBot(slack_client, os.environ.get('SLACKBOT_ID'))
 
 @app.route('/register/<slack_id>', methods=['GET', 'POST'])
 def register(slack_id):
+    """Route for handling user registration form."""
     if request.method == 'GET':
         return render_template('register.html', slack_id=slack_id)
     elif request.method == 'POST':
         process_form(slack_id, request)
+        return None
 
 
 def process_form(slack_id, request):
+    """Creates the user and nodes from form data."""
     synapse_user = create_synapse_user(slack_id, request)
     submit_cip(synapse_user, request)
     debit_node = create_debit_node(synapse_user, request)
     savings_node = create_savings_node(synapse_user, request)
-    create_user(slack_id, synapse_user.id, debit_node.id, savings_node.id)
+    user = create_user(slack_id, synapse_user.id, debit_node.id, savings_node.id)
+    return user
 
 
 def create_synapse_user(slack_id, form_data):
+    """Creates a new user with Synapse."""
     # these 'options' actually required until pending API update or lib change
     options = {
         'note': 'created by Synapse Slackbot',
@@ -48,6 +53,7 @@ def create_synapse_user(slack_id, form_data):
 
 
 def submit_cip(synapse_user, request):
+    """Uploads CIP base document, photo ID, and SSN for user to Synapse."""
     year, month, day = request.form['birthday'].split('-')
     base_doc = synapse_user.add_base_document(
         ip='127.0.0.1',
@@ -72,6 +78,7 @@ def submit_cip(synapse_user, request):
 
 
 def create_debit_node(synapse_user, request):
+    """Creates a node from which to draw funds for savings."""
     return AchUsNode.create(
         synapse_user,
         account_number=request.form['account_number'],
@@ -83,17 +90,20 @@ def create_debit_node(synapse_user, request):
 
 
 def create_savings_node(synapse_user, form_data):
+    """Creates an FDIC-insured account at Triumph Bank to deposit savings."""
     return SynapseUsNode.create(synapse_user,
                                 nickname='Synapse Automatic Savings Account')
 
 
 def create_user(slack_id, synapse_id, debit_node_id, savings_node_id):
+    """Create a user with Slack and Synapse info in the database."""
     user = User(slack_id, synapse_id, debit_node_id, savings_node_id)
     db.session.add(user)
     db.session.commit()
 
 
 def start_event_loop():
+    """Main event loop for program."""
     # second delay between reading from Slack RTM firehose
     READ_WEBSOCKET_DELAY = 1
     if slack_client.rtm_connect():
