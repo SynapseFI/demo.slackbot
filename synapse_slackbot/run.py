@@ -4,7 +4,7 @@ import time
 import os
 import _thread
 from flask import render_template, request
-from .config import app, db, slack_client
+from .config import app, slack_client
 from .app.synapse_bot import SynapseBot
 from .models import User
 
@@ -36,6 +36,5 @@ def start_bot_event_loop():
     else:
         print('Connection failed.')
 
-if __name__ == '__main__':
-    app.run()
-    _thread.start_new_thread(start_bot_event_loop, ())
+_thread.start_new_thread(start_bot_event_loop, ())
+app.run()

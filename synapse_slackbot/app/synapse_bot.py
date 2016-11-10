@@ -1,12 +1,49 @@
 import sys
-import re
 import traceback
+from synapse_pay_rest import User as SynapseUser
 from synapse_pay_rest.errors import SynapsePayError
-from .commands_directory import COMMANDS
+from synapse_slackbot.models import User
+from synapse_slackbot.synapse_client import synapse_client
+from .commands import balance, history, list_nodes, save, verify_node, whoami
 
 
 class SynapseBot():
     """Provides a limited Slack interface for the Synapse API."""
+
+    COMMANDS = {
+        'balance': {
+            'function_name': balance,
+            'example': '@synapse balance',
+            'description': 'List savings balance:'
+        },
+        'history': {
+            'function_name': history,
+            'example': '@synapse history',
+            'description': 'List most recent history:'
+        },
+        'nodes': {
+            'function_name': list_nodes,
+            'example': '@synapse nodes',
+            'description': 'List the bank accounts associated with the user:'
+        },
+        'save': {
+            'function_name': save,
+            'example': ('@synapse save `[amount]` (in `[number]` '
+                        'days) / (every `[number]` days)'),
+            'description': ('Schedule a one-time or recurring savings transfer:')
+        },
+        'verify': {
+            'function_name': verify_node,
+            'example': ('@synapse verify `[microdeposit amount 1]` '
+                        '`[microdeposit amount 2]`'),
+            'description': ('Activate a node by verifying micro-deposit amounts:')
+        },
+        'whoami': {
+            'function_name': whoami,
+            'example': '@synapse whoami',
+            'description': 'Return basic information about the user:'
+        }
+    }
 
     def __init__(self, slack_client, bot_id):
         self.slack_client = slack_client
@@ -15,9 +52,11 @@ class SynapseBot():
 
     def help(self):
         """List the available bot commands with descriptions and examples."""
-        help_strings = ['*{0}*\n'.format(COMMANDS[keyword]['description']) +
-                        '>{0}'.format(COMMANDS[keyword]['example'])
-                        for keyword in COMMANDS]
+        help_strings = [
+            '*{0}*\n'.format(self.COMMANDS[keyword]['description']) +
+            '>{0}'.format(self.COMMANDS[keyword]['example'])
+            for keyword in self.COMMANDS
+        ]
         return '\n\n'.join(help_strings)
 
     def post_to_channel(self, channel, text):
@@ -32,9 +71,7 @@ class SynapseBot():
     def parse_slack_output(self, slack_rtm_output):
         """Monitor Slack messages for @synapse mentions and react if found."""
         for output in slack_rtm_output:
-            if self.is_doc_upload(output):
-                self.handle_doc_upload(output)
-            elif self.is_command(output):
+            if output and 'text' in output and self.at_bot in output['text']:
                 self.handle_command(output)
 
     def handle_command(self, output):
@@ -43,77 +80,68 @@ class SynapseBot():
 
         if keyword == 'help':
             response = self.help()
-        elif keyword in COMMANDS:
-            command = COMMANDS[keyword]['function_name']
-            response = self.execute_command(command=command,
-                                            user=output['user'],
+        elif keyword in self.COMMANDS:
+            response = self.execute_command(command=self.COMMANDS[keyword]['function_name'],
+                                            slack_id=output['user'],
                                             params=params,
                                             channel=output['channel'])
         else:
             response = ('*Not sure what you mean. Try this:*\n>@synapse help')
         self.post_to_channel(output['channel'], response)
 
-    def handle_doc_upload(self, output):
-        """Check file upload for command keyword and call associated function.
-        """
-        comment = output['file']['initial_comment']['comment']
-        keyword = 'add_photo_id'  # hard-coded since there's only 1 for now
-        url = output['file']['permalink']
-
-        if keyword in comment:
-            command = COMMANDS[keyword]['function_name']
-            response = self.execute_command(command=command,
-                                            user=output['user'],
-                                            params=url,
-                                            channel=output['channel'])
-        else:
-            response = ('*Not sure what you mean. Try this:*\n>@synapse help')
-        self.post_to_channel(output['channel'], response)
-
-    def execute_command(self, command, user, params, channel):
+    def execute_command(self, command, slack_id, params, channel):
         """Attempt to run the command with the parameters provided."""
         self.acknowledge_command(channel)
-        try:
-            response = command(user, params)
-        except SynapsePayError as e:
-            response = (
-                'An HTTP error occurred while trying to communicate with '
-                'the Synapse API:\n{0}'.format(e.message)
-            )
-        except Exception as e:
-            traceback.print_tb(e.__traceback__)
-            response = 'An error occurred:\n{0}: {1}'.format(sys.exc_info()[0],
-                                                             sys.exc_info()[1])
+        synapse_user = self.synapse_user_from_slack_user_id(slack_id)
+        response = self.registration_prompt(slack_id)
+
+        if synapse_user:
+            try:
+                response = command(slack_id, synapse_user, params)
+            except SynapsePayError as e:
+                response = (
+                    'An HTTP error occurred while trying to communicate with '
+                    'the Synapse API:\n{0}'.format(e.message)
+                )
+            except Exception as e:
+                traceback.print_tb(e.__traceback__)
+                response = 'An error occurred:\n{0}: {1}'.format(sys.exc_info()[0],
+                                                                 sys.exc_info()[1])
         return response
-
-    def is_command(self, output):
-        """Determine whether Slack output contains a message with a command."""
-        if output and 'text' in output and self.at_bot in output['text']:
-            return True
-
-    def is_doc_upload(self, output):
-        """Determine whether Slack output contains an upload with a command."""
-        if output and 'file' in output:
-            if 'initial_comment' in output['file']:
-                if self.at_bot in output['file']['initial_comment']['comment']:
-                    return True
 
     def acknowledge_command(self, channel):
         """Post a message to channel acknowledging receipt of command."""
         self.post_to_channel(channel, 'Processing command...')
+
+    def verify_registration(self, synapse_id):
+        synapse_user = self.synapse_user_from_slack_user_id(self.slack_user_id)
+        if not synapse_user:
+            return False
+        return synapse_user
+
+    def synapse_user_from_slack_user_id(self, slack_user_id):
+        """Find the Slack user's Synapse ID and get the Synapse user."""
+        user = User.query.filter_by(slack_user_id=slack_user_id).first()
+        if user is None:
+            return None
+        return SynapseUser.by_id(client=synapse_client, id=user.synapse_user_id)
+
+    def registration_prompt(self, slack_id):
+        """Warning message that the user needs to register first."""
+        return ('*Please register first!*\n'
+                '> http://localhost:5000/register/{0}'.format(slack_id))
 
     # helpers
 
     def keyword_and_params_from_text(self, text):
         """Parse keyword and params from the Slack message."""
         try:
-            without_bot_name = self.without_first_word(text).lower().split(' ', 1)
+            bot_name_stripped = self.without_first_word(text).lower().split(' ', 1)
         except:
             return None, None
-        keyword = without_bot_name[0]
+        keyword = bot_name_stripped[0]
         try:
-            params = without_bot_name[1]
-            params = self.purge_hyperlinks(params)
+            params = bot_name_stripped[1]
             if '|' in params:
                 params = self.params_string_to_dict(params)
         except IndexError:
@@ -134,22 +162,3 @@ class SynapseBot():
             if len(field) is not 2:
                 fields.remove(field)
         return dict(fields)
-
-    def purge_hyperlinks(self, raw):
-        """Return the hyperlink-laden string with hyperlinks removed.
-
-        TODO:
-            - DRY-er way to sub with capture value in single step.
-        """
-        purged = raw
-        email_pattern = r'<mailto:\S+\|(\S+)>'
-        email = re.search(email_pattern, raw)
-        if email:
-            email = email.groups()[0]
-            purged = re.sub(email_pattern, email, raw)
-        phone_pattern = r'<tel:\S+\|(\S+)>'
-        phone = re.search(phone_pattern, raw)
-        if phone:
-            phone = phone.groups()[0]
-            purged = re.sub(phone_pattern, phone, purged)
-        return purged

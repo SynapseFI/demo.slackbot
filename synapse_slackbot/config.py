@@ -6,7 +6,7 @@ from .db import connect_db
 
 # Flask config
 app = Flask(__name__)
-app.config['DEBUG'] = True
+# app.config['DEBUG'] = True
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # DB config
