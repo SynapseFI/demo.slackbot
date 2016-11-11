@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Start event loop."""
+"""Main Slackbot event loop and routes."""
 import time
 import os
 import _thread

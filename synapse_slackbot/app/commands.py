@@ -60,30 +60,46 @@ def save(slack_user_id, synapse_user, params):
     savings_node = Node.by_id(user=synapse_user, id=user.savings_node_id)
     amount = first_word(params)
     if not amount:
+        # invalid params
         return invalid_params_warning('send')
+
     if 'every' in params:
+        # recurring transaction
         periodicity = word_after(params, 'every')
-        trans = create_recurring_transaction(amount=amount,
-                                             from_id=debit_node.id,
-                                             to_id=savings_node.id,
-                                             periodicity=periodicity,
-                                             slack_user_id=slack_user_id)
-        return ('*Recurring transaction created.*\n' +
-                recurring_transaction_summary(trans))
+        return create_recurring_transaction(amount=amount,
+                                            from_id=debit_node.id,
+                                            to_id=savings_node.id,
+                                            periodicity=periodicity,
+                                            slack_user_id=slack_user_id)
+
+    process_in = None
+    if 'in' in params:
+        # scheduled transaction
+        process_in = word_after(params, 'in')
+
+    return create_transaction(amount=amount,
+                              debit_node=debit_node,
+                              savings_node_id=savings_node.id,
+                              process_in=process_in)
+
+
+def create_transaction(**kwargs):
+    """Create a standard Synapse transaction (default or scheduled)."""
     args = {
-        'amount': amount,
-        'to_id': savings_node.id,
+        'amount': kwargs['amount'],
+        'to_id': kwargs['savings_node_id'],
         'to_type': 'SYNAPSE-US',
         'currency': 'USD',
         'ip': '127.0.0.1'
     }
-    if 'in' in params:
-        args['process_in'] = word_after(params, 'in')
-    transaction = Transaction.create(debit_node, **args)
+    if kwargs.get('process_in'):
+        args['process_in'] = kwargs['process_in']
+    transaction = Transaction.create(kwargs['debit_node'], **args)
     return ('*Transaction created.*\n' + transaction_summary(transaction))
 
 
 def create_recurring_transaction(**kwargs):
+    """Create a RecurringTransaction."""
     trans = RecurringTransaction(amount=kwargs['amount'],
                                  from_node_id=kwargs['from_id'],
                                  to_node_id=kwargs['to_id'],
@@ -91,7 +107,8 @@ def create_recurring_transaction(**kwargs):
                                  slack_user_id=kwargs['slack_user_id'])
     db.session.add(trans)
     db.session.commit()
-    return trans
+    return ('*Recurring transaction created.*\n' +
+            recurring_transaction_summary(trans))
 
 
 # formatting helpers

@@ -40,7 +40,7 @@ class User(db.Model):
     @staticmethod
     def create_synapse_user(slack_id, request):
         """Creates a new user with Synapse."""
-        # these 'options' actually required until pending API update or lib change
+        # 'options' actually required until pending API update or lib change
         options = {
             'note': 'created by Synapse Slackbot',
             'supp_id': slack_id,
@@ -48,12 +48,13 @@ class User(db.Model):
             'cip_tag': 1
         }
 
-        synapse_user = SynapseUser.create(client=synapse_client,
-                                          email=request.form['email'],
-                                          phone_number=request.form['phone'],
-                                          legal_name=request.form['name'].title(),
-                                          **options)
-        return synapse_user
+        return SynapseUser.create(
+            client=synapse_client,
+            email=request.form['email'],
+            phone_number=request.form['phone'],
+            legal_name=request.form['name'].title(),
+            **options
+        )
 
     @staticmethod
     def submit_cip(synapse_user, request):
@@ -94,9 +95,12 @@ class User(db.Model):
 
     @staticmethod
     def create_savings_node(synapse_user, form_data):
-        """Creates an FDIC-insured account at Triumph Bank to deposit savings."""
-        return SynapseUsNode.create(synapse_user,
-                                    nickname='Synapse Automatic Savings Account')
+        """Creates an FDIC-insured account at Triumph Bank to deposit savings.
+        """
+        return SynapseUsNode.create(
+            synapse_user,
+            nickname='Synapse Automatic Savings Account'
+        )
 
 
 class RecurringTransaction(db.Model):

@@ -81,10 +81,12 @@ class SynapseBot():
         if keyword == 'help':
             response = self.help()
         elif keyword in self.COMMANDS:
-            response = self.execute_command(command=self.COMMANDS[keyword]['function_name'],
-                                            slack_id=output['user'],
-                                            params=params,
-                                            channel=output['channel'])
+            response = self.execute_command(
+                command=self.COMMANDS[keyword]['function_name'],
+                slack_id=output['user'],
+                params=params,
+                channel=output['channel']
+            )
         else:
             response = ('*Not sure what you mean. Try this:*\n>@synapse help')
         self.post_to_channel(output['channel'], response)
