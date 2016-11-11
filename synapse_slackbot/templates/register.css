@@ -1,0 +1,133 @@
+/* GENERAL */
+
+*,
+*:before,
+*:after {
+    box-sizing: border-box;
+    color: #b0babf;
+}
+
+/* HEADER */
+
+h1 {
+    font-family: "Gotham SSm A", "Gotham SSm B", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: normal;
+    text-transform: uppercase;
+}
+
+img {
+    border: 0;
+}
+
+.logo img {
+    display: block;
+    height: 40px;
+    margin: 0 auto;
+    width: 149px;
+}
+
+/* FORM */
+
+input {
+    border-color: #b0babf;
+    line-height: normal;
+}
+
+input[type=date] {
+    height: 41.3125px;
+}
+
+label {
+    color: #788991;
+    display: block;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+input,
+select,
+textarea {
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    background: #fff;
+    border: 1px solid #b0babf;
+    border-radius: 0;
+    box-shadow: none;
+    color: #b0babf;
+    display: block;
+    font: 300 1.2rem / 1.33333 "Gotham SSm A","Gotham SSm B","Helvetica Neue",Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing: antialiased;
+    outline: none;
+    padding: 0.66667em 0.88889em;
+    resize: none;
+    text-shadow: none;
+    transition: all 260ms ease-out;
+    transform: translate3d(0, 0, 0);
+    width: 100%;
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+    color: inherit;
+    font: inherit;
+    margin: 0;
+}
+
+input:valid,
+select:valid,
+textarea:valid {
+    border-color: #b0babf;
+    color: #3e474c;
+}
+
+input:placeholder-shown,
+textarea:placeholder-shown {
+    color: #b0babf;
+    opacity: 1;
+}
+
+label+input,
+label+textarea,
+label+select {
+    margin-top: 0.22222em;
+}
+
+.half {
+    width: 50%;
+}
+
+.third {
+    width: 33.33%;
+}
+
+.half,
+.third {
+    position: relative;
+}
+
+.half:first-of-type:not(:last-of-type),
+.half+.half,
+.third:first-of-type:not(:last-of-type),
+.third+.third {
+    float: left;
+}
+
+.half:first-child,
+.third:first-child {
+    padding-left: 0;
+}
+
+.half:not(first-child):not(last-child),
+.third:not(first-child):not(last-child) {
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+.half:last-child,
+.third:last-child {
+    padding-right: 0;
+}
