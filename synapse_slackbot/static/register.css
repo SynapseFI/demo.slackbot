@@ -85,6 +85,7 @@ p {
 }
 
 /* BREADCRUMBS */
+
 .breadcrumbs {
     display: table;
     list-style: none;
@@ -148,12 +149,20 @@ p {
     background: #dadfe1;
 }
 
-/* TABS */
+/* TAB BEHAVIOR */
 
+div.submit,
+.header,
 .tab {
     display: none;
 }
 
+.inactive {
+    display: none !important;
+}
+
+.header.active,
+.submit.active,
 .tab.active {
     display: inherit;
 }
@@ -210,12 +219,12 @@ textarea {
     margin: 0;
 }
 
-input:valid,
+/*input:valid,
 select:valid,
 textarea:valid {
     border-color: #b0babf;
     color: #3e474c;
-}
+}*/
 
 input:placeholder-shown,
 textarea:placeholder-shown {
@@ -284,6 +293,12 @@ label+select {
     transition: all 260ms ease-out;
     transform: translate3d(0, 0, 0);
     width: 100%;
+}
+
+.button.submit,
+.button.next {
+    background: #4eaacc;
+    color: #fff;
 }
 
 .button.disabled {
