@@ -6,6 +6,12 @@ $(function() {
 });
 
 const bindListeners = function() {
+  bindBackButton();
+  bindNextButton();
+  bindFormSubmit();
+};
+
+const bindBackButton = function() {
   $('.back').click(function() {
     if (activeTab > 0) {
       $('.'+tabs[activeTab]).removeClass('active')
@@ -17,7 +23,9 @@ const bindListeners = function() {
       $('.'+tabs[activeTab]).addClass('active')
     }
   });
+};
 
+const bindNextButton = function() {
   $('.next').click(function() {
     if (activeTab < 2) {
       $('.'+tabs[activeTab]).removeClass('active')
@@ -29,10 +37,12 @@ const bindListeners = function() {
       }
     }
   });
+};
 
+const bindFormSubmit = function() {
   $('form').submit(function() {
+    console.log(this)
     const url = this.attr('action')
-    debugger
     const request = $.ajax({
       url: url,
       method: 'POST',
@@ -41,5 +51,3 @@ const bindListeners = function() {
     });
   });
 };
-
-
