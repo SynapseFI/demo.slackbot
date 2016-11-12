@@ -4,19 +4,77 @@
 *:before,
 *:after {
     box-sizing: border-box;
-    color: #b0babf;
 }
 
-/* HEADER */
+html {
+    font: 300 15px / 1.33333 "Gotham SSm A","Gotham SSm B","Helvetica Neue",Helvetica,Arial,sans-serif;
+    color: #3e474c;
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+}
+
+section {
+    display: table;
+    margin: 48px 0;
+    width: 100%;
+}
+
+main {
+    margin: 0 auto;
+    max-width: 768px;
+    padding: 20px;
+    width: 100%;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin: 1em auto;
+    font-weight: 300;
+}
+
+h1+p,
+h2+p,
+h3+p,
+h4+p,
+h5+p,
+h6+p {
+    margin-top: 0.8em;
+}
 
 h1 {
     font-family: "Gotham SSm A", "Gotham SSm B", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-weight: normal;
     text-transform: uppercase;
+}
+
+h2 {
+    color: #4eaacc;
+    line-height: 1.33333;
+    font-size: 24px;
+    font-size: 1.6rem;
+    font-family: "Gotham A","Gotham B","Helvetica Neue",Helvetica,Arial,sans-serif;
+    margin: 0 auto;
+    -webkit-font-smoothing: auto;
 }
 
 img {
     border: 0;
+}
+
+p {
+    margin: 0 auto;
+}
+
+/* HEADER */
+
+.logo {
+    line-height: 1;
+    margin: 5.33333rem 0 3.33333rem;
+    text-align: center;
 }
 
 .logo img {
@@ -24,6 +82,80 @@ img {
     height: 40px;
     margin: 0 auto;
     width: 149px;
+}
+
+/* BREADCRUMBS */
+.breadcrumbs {
+    display: table;
+    list-style: none;
+    padding: 0;
+    width: 100%;
+}
+
+.breadcrumb {
+    cursor: default;
+    display: table-cell;
+    padding: 0;
+    text-align: center;
+    text-indent: 0;
+    vertical-align: bottom;
+}
+
+.breadcrumb.active .breadcrumb-text {
+    color: #4eaacc;
+}
+
+.breadcrumb-text {
+    color: inherit;
+    display: block;
+    font-size: 15px;
+    font-size: 1rem;
+    font-weight: 300;
+    padding: 0 0.53333em 1.6em;
+    position: relative;
+    text-decoration: none;
+    user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-user-select: none;
+}
+
+.breadcrumb-text:before {
+    background: #dadfe1;
+}
+
+.breadcrumb-text:after {
+    background: #4eaacc;
+}
+
+.breadcrumb-text:after,
+.breadcrumb-text:before {
+    bottom: 0;
+    content: ' ';
+    height: 4px;
+    left: 0;
+    position: absolute;
+    width: 100%;
+}
+
+.breadcrumb.active ~ .breadcrumb .breadcrumb-text {
+    color: #b0babf;
+    transition: color 260ms ease-out;
+}
+
+.breadcrumb.active ~ .breadcrumb .breadcrumb-text:after {
+    width: 0;
+    background: #dadfe1;
+}
+
+/* TABS */
+
+.tab {
+    display: none;
+}
+
+.tab.active {
+    display: inherit;
 }
 
 /* FORM */
@@ -42,6 +174,7 @@ label {
     display: block;
     font-size: 1rem;
     font-weight: 500;
+    -webkit-font-smoothing: antialiased;
 }
 
 input,
@@ -106,14 +239,8 @@ label+select {
 
 .half,
 .third {
-    position: relative;
-}
-
-.half:first-of-type:not(:last-of-type),
-.half+.half,
-.third:first-of-type:not(:last-of-type),
-.third+.third {
-    float: left;
+    display: inline-block;
+    margin-right: -4px; /* this helps the elements fit on 1 line */
 }
 
 .half:first-child,
@@ -130,4 +257,56 @@ label+select {
 .half:last-child,
 .third:last-child {
     padding-right: 0;
+}
+
+.group {
+    margin-top: 32px;
+    width: 100%;
+}
+
+.button {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: #fff;
+    border: 1px solid #4eaacc;
+    border-radius: 0;
+    color: #4eaacc;
+    cursor: pointer;
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 300;
+    line-height: 1.33333;
+    padding: 0.55556em 1em;
+    text-align: center;
+    text-decoration: none;
+    text-shadow: none;
+    transition: all 260ms ease-out;
+    transform: translate3d(0, 0, 0);
+    width: 100%;
+}
+
+.button.disabled {
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    background: #4eaacc;
+    border: 1px solid #4eaacc;
+    border-radius: 0;
+    color: #fff;
+    cursor: default;
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 300;
+    line-height: 1.33333;
+    opacity: .5;
+    overflow: visible;
+    padding: 0.55556em 1em;
+    text-align: center;
+    text-decoration: none;
+    text-shadow: none;
+    text-transform: none;
+    transition: all 260ms ease-out;
+    transform: translate3d(0, 0, 0);
+    width: 100%;
 }
