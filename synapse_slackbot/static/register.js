@@ -63,6 +63,9 @@ const bindFormSubmit = function() {
     })
       .done(function(data) {
         console.log(data);
+      })
+      .fail(function(data) {
+        console.log(data);
       });
   });
 };

@@ -12,7 +12,7 @@ def whoami(slack_user_id, synapse_user, params):
 
 def verify_node(slack_user_id, synapse_user, params):
     """Activate a node with Synapse via microdeposits and return node info."""
-    user = user_from_slack_id(slack_user_id)
+    user = User.from_slack_id(slack_user_id)
     amount1 = first_word(params)
     amount2 = word_after(params, amount1)
     if not amount1 or not amount2:
@@ -33,7 +33,7 @@ def list_nodes(slack_user_id, synapse_user, params):
 
 def balance(slack_user_id, synapse_user, params):
     """Return balance on SYNAPSE-US savings account."""
-    user = user_from_slack_id(slack_user_id)
+    user = User.from_slack_id(slack_user_id)
     savings_node = Node.by_id(user=synapse_user, id=user.savings_node_id)
     if savings_node:
         balance = format_currency(savings_node.balance)
@@ -44,7 +44,7 @@ def balance(slack_user_id, synapse_user, params):
 
 def history(slack_user_id, synapse_user, params):
     """Return information on the the Synapse nodes's transactions."""
-    user = user_from_slack_id(slack_user_id)
+    user = User.from_slack_id(slack_user_id)
     debit_node = Node.by_id(user=synapse_user, id=user.debit_node_id)
     transactions = Transaction.all(node=debit_node)
     if transactions:
@@ -55,7 +55,7 @@ def history(slack_user_id, synapse_user, params):
 
 def save(slack_user_id, synapse_user, params):
     """Create a Synapse transaction from one node to another."""
-    user = user_from_slack_id(slack_user_id)
+    user = User.from_slack_id(slack_user_id)
     debit_node = Node.by_id(user=synapse_user, id=user.debit_node_id)
     savings_node = Node.by_id(user=synapse_user, id=user.savings_node_id)
     amount = first_word(params)
@@ -154,10 +154,6 @@ def recurring_transaction_summary(recurring):
 
 
 # general helpers
-
-def user_from_slack_id(slack_user_id):
-    return User.query.filter_by(slack_user_id=slack_user_id).first()
-
 
 def invalid_params_warning(command):
     """Warning message that the format of the command is correct."""

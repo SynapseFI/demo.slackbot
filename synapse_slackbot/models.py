@@ -27,6 +27,10 @@ class User(db.Model):
                                                       self.synapse_user_id)
 
     @classmethod
+    def from_slack_id(cls, slack_user_id):
+        return cls.query.filter_by(slack_user_id=slack_user_id).first()
+
+    @classmethod
     def from_request(cls, slack_id, request):
         synapse_user = cls.create_synapse_user(slack_id, request)
         cls.submit_cip(synapse_user, request)
@@ -77,9 +81,8 @@ class User(db.Model):
             address_postal_code=request.form['address_zip'],
             address_country_code='US')
         base_doc.add_virtual_document(type='SSN', value=request.form['ssn'])
-        img_file = request.files['govt_id']
-        base_doc.add_physical_document(type='GOVT_ID', mime_type='image/jpeg',
-                                       byte_stream=img_file.read())
+        base_doc.add_physical_document(type='GOVT_ID',
+                                       value=request.files['govt_id'])
 
     @staticmethod
     def create_debit_node(synapse_user, request):
