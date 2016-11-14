@@ -2,7 +2,9 @@
 """Main Slackbot event loop and routes."""
 import time
 import os
+import json
 import _thread
+import sys
 from flask import render_template, request
 from .config import app, slack_client
 from .app.synapse_bot import SynapseBot
@@ -17,8 +19,13 @@ def register(slack_id):
     if request.method == 'GET':
         return render_template('register.html', slack_id=slack_id)
     elif request.method == 'POST':
-        user = User.from_request(slack_id, request)
-        return str(user)
+        try:
+            User.from_request(slack_id, request)
+            return (json.dumps({'success': True}), 200,
+                    {'ContentType': 'application/json'})
+        except:
+            return (json.dumps({'success': False}, 500,
+                    {'ContentType': 'application/json'}))
 
 
 def start_bot_event_loop():
@@ -36,5 +43,5 @@ def start_bot_event_loop():
     else:
         print('Connection failed.')
 
-_thread.start_new_thread(start_bot_event_loop, ())
+# _thread.start_new_thread(start_bot_event_loop, ())
 app.run()

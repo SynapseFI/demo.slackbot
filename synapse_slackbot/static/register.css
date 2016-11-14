@@ -73,7 +73,7 @@ p {
 
 .logo {
     line-height: 1;
-    margin: 4rem 0 3rem;
+    margin: 1.25rem .75rem;
     text-align: center;
 }
 
@@ -269,7 +269,7 @@ label+select {
 }
 
 .group {
-    margin-top: 32px;
+    margin-top: 16px;
     width: 100%;
 }
 
