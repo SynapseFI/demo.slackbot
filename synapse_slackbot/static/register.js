@@ -1,4 +1,4 @@
-const tabs = ['tab1', 'tab2', 'tab3'];
+const TABS = ['tab1', 'tab2', 'tab3'];
 let activeTab = 0;
 
 $(function() {
@@ -15,40 +15,56 @@ const bindListeners = function() {
 const bindBackButton = function() {
   $('.back').click(function(e) {
     e.preventDefault();
+    validateTabInputs(activeTab);
 
     if (activeTab > 0) {
-      $('.'+tabs[activeTab]).removeClass('active')
+      $(activeTabSelector).removeClass('active');
+
       if (activeTab === 2) {
-        $('.next').removeClass('inactive');
-        $('.submit').addClass('inactive');
-        $('.submit').attr('disabled', true);
+        hideSubmit();
       }
+
       activeTab -= 1;
-      $('.'+tabs[activeTab]).addClass('active');
+      $(activeTabSelector).addClass('active');
     }
   });
+};
+
+const hideSubmit = function() {
+  $('.next').removeClass('inactive');
+  $('.submit').addClass('inactive');
+  $('.submit').attr('disabled', true);
 };
 
 const bindNextButton = function() {
   $('.next').click(function(e) {
     e.preventDefault();
+    validateTabInputs(activeTab);
 
     if (activeTab < 2) {
-      $('.'+tabs[activeTab]).removeClass('active')
+      $(activeTabSelector).removeClass('active');
+
       activeTab += 1;
-      $('.'+tabs[activeTab]).addClass('active')
+
       if (activeTab === 2) {
-        $('.next').addClass('inactive');
-        $('.submit').removeClass('inactive');
-        $('.submit').attr('disabled', false);
+        showSubmit();
       }
+
+      $(activeTabSelector).addClass('active');
     }
   });
+};
+
+const showSubmit = function() {
+  $('.next').addClass('inactive');
+  $('.submit').removeClass('inactive');
+  $('.submit').attr('disabled', false);
 };
 
 const bindFormSubmit = function() {
   $('form').submit(function(e) {
     e.preventDefault();
+    validateTabInputs(activeTab);
 
     let formData = new FormData(this);
     formData.append('file', base64);
@@ -71,17 +87,25 @@ const bindFormSubmit = function() {
 };
 
 const handleSuccess = function(data) {
-  message = data['message'];
-  $('#alertMessage').text(message);
+  const message = data['message'];
+  $('#alertMessage').text(data['message']);
   $('.alert').removeClass('invalid');
   $('.alert').addClass('valid');
 };
 
 const handleFailure = function(data) {
-  message = JSON.parse(data['responseText'])['message'];
+  const message = JSON.parse(data['responseText'])['message'];
   $('#alertMessage').text(message);
   $('.alert').removeClass('valid');
   $('.alert').addClass('invalid');
+};
+
+const validateTabInputs = function(tabNumber) {
+  const inputs = $('.tab1 input');
+};
+
+const activeTabSelector = function(tabNumber) {
+  return '.tab' + TABS[activeTab];
 };
 
 var base64;
