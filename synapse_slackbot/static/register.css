@@ -192,6 +192,10 @@ div.submit,
     display: block;
 }
 
+.alert.pending {
+    border-left: 6px solid #eef04e;
+    display: block;
+}
 
 /* FORM */
 

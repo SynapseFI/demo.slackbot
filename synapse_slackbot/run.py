@@ -3,7 +3,10 @@
 import time
 import os
 import _thread
+import traceback
+import sys
 from flask import jsonify, render_template, request
+from synapse_pay_rest.errors import SynapsePayError
 from .config import app, slack_client
 from .app.synapse_bot import SynapseBot
 from .models import User
@@ -27,8 +30,16 @@ def register(slack_id):
             User.from_request(slack_id, request)
             response = jsonify({'message': 'You are now registered.'})
             response.status_code = 200
+        except SynapsePayError as e:
+            response = jsonify({
+                'message': 'API error: {0}'.format(e.message)
+            })
+            response.status_code = e.response.status_code
         except Exception as e:
-            response = jsonify({'message': 'Sorry, server error.'})
+            traceback.print_tb(e.__traceback__)
+            response = jsonify({
+                'message': 'Server error: {0}'.format(sys.exc_info()[1])
+            })
             response.status_code = 500
         return response
 

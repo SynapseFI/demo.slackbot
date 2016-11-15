@@ -38,7 +38,7 @@ const bindInputsFilled = function() {
 const bindBackButton = function() {
   $('.back').click(function(e) {
     e.preventDefault();
-    clearErrors();
+    clearAlerts();
 
     if (activeTab === 0) {
       disableBackButton();
@@ -60,7 +60,7 @@ const bindBackButton = function() {
 const bindNextButton = function() {
   $('.next').click(function(e) {
     e.preventDefault();
-    clearErrors();
+    clearAlerts();
 
     const errors = checkValidationErrors();
     if (errors.length > 0) {
@@ -115,7 +115,7 @@ const showSubmit = function() {
 const bindFormSubmit = function() {
   $('form').submit(function(e) {
     e.preventDefault();
-    clearErrors();
+    clearAlerts();
 
     const errors = checkValidationErrors();
     if (errors.length > 0) {
@@ -139,26 +139,22 @@ const bindFormSubmit = function() {
       .fail(function(data) {
         handleFailure(data);
       });
+
+    renderAlert('Please wait...', 'pending');
   });
 };
 
 const handleSuccess = function(data) {
-  clearErrors();
+  clearAlerts();
 
-  const $message = alertMessage(data['message']);
-  $('.alert').append($message);
-  $('.alert').removeClass('invalid');
-  $('.alert').addClass('valid');
+  renderAlert(data['message'], 'valid');
 };
 
 const handleFailure = function(data) {
-  clearErrors();
+  clearAlerts();
 
   const errorText = JSON.parse(data['responseText'])['message'];
-  const $message = alertMessage(errorText);
-  $('.alert').append($message);
-  $('.alert').removeClass('valid');
-  $('.alert').addClass('invalid');
+  renderAlert(errorText, 'invalid');
 };
 
 var base64;
@@ -274,22 +270,26 @@ const tab2Validations = function() {
 };
 
 const renderErrors = function(errors) {
-  const $errorElements = errors.map(function(errorText){
-    return alertMessage(errorText);
+  const $errorElements = errors.forEach(function(errorText){
+    renderAlert(errorText, 'invalid');
   });
+};
 
-  $('.alert').append($errorElements);
-  $('.alert').removeClass('valid');
-  $('.alert').addClass('invalid');
+const clearAlerts = function() {
+  const $alert = $('.alert');
+  $alert.empty();
+  $alert.removeClass('valid');
+  $alert.removeClass('invalid');
+};
+
+const renderAlert = function(message, status) {
+  const $message = alertMessage(message),
+    $alert = $('.alert');
+  $alert.append($message);
+  $alert.removeClass('valid invalid pending');
+  $alert.addClass(status);
 };
 
 const alertMessage = function(text) {
   return $('<p class="alert-message">' + text + '</p>');
-};
-
-const clearErrors = function() {
-  const $alert = $('.alert');
-  $alert.empty();
-  $('.alert').removeClass('valid');
-  $('.alert').removeClass('invalid');
 };
