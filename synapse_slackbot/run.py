@@ -18,7 +18,9 @@ def register(slack_id):
         return render_template('register.html', slack_id=slack_id)
     elif request.method == 'POST':
         if User.from_slack_id(slack_id):
-            response = jsonify({'message': 'Slack ID already registered.'})
+            response = jsonify({
+                'message': 'You are already registered with this Slack ID.'
+            })
             response.status_code = 409
             return response
         try:

@@ -191,9 +191,17 @@ const tab0Validations = function() {
 
 const tab1Validations = function() {
   const ssn = $('input[name=ssn]').val(),
-    govtId = $('input[name=govtId').val();
+    govtId = $('input[name=govt_id').val();
 
   const errors = [];
+
+  if (ssn.length < 4) {
+    errors.push('SSN must be at least 4 digits.');
+  }
+  if (govtId.length < 4) {
+    errors.push('Photo ID image required.');
+  }
+
   if (errors.length > 0) {
     renderErrors(errors);
   }
@@ -206,6 +214,14 @@ const tab2Validations = function() {
     routingNumber = $('input[name=routing_number]').val();
 
   const errors = [];
+
+  if (accountNumber < 6) {
+    errors.push('Account number must be at least 6 digits.');
+  }
+  if (routingNumber.length !== 9) {
+    errors.push('Routing number must be 9 digits.');
+  }
+
   if (errors.length > 0) {
     renderErrors(errors);
   }
