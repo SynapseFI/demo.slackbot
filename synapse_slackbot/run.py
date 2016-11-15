@@ -2,9 +2,8 @@
 """Main Slackbot event loop and routes."""
 import time
 import os
-import json
 import _thread
-from flask import render_template, request, jsonify
+from flask import jsonify, render_template, request
 from .config import app, slack_client
 from .app.synapse_bot import SynapseBot
 from .models import User
@@ -19,19 +18,17 @@ def register(slack_id):
         return render_template('register.html', slack_id=slack_id)
     elif request.method == 'POST':
         if User.from_slack_id(slack_id):
-            return (json.dumps(
-                        {
-                            'success': False,
-                            'reason': 'Slack ID already registered'
-                        }),
-                    409, {'ContentType': 'application/json'})
+            response = jsonify({'message': 'Slack ID already registered.'})
+            response.status_code = 409
+            return response
         try:
             User.from_request(slack_id, request)
-            return (json.dumps({'success': True}), 200,
-                    {'ContentType': 'application/json'})
+            response = jsonify({'message': 'You are now registered.'})
+            response.status_code = 200
         except:
-            return (json.dumps({'success': False}), 500,
-                    {'ContentType': 'application/json'})
+            response = jsonify({'message': 'Sorry, server error.'})
+            response.status_code = 500
+        return response
 
 
 def start_bot_event_loop():
@@ -49,5 +46,5 @@ def start_bot_event_loop():
     else:
         print('Connection failed.')
 
-_thread.start_new_thread(start_bot_event_loop, ())
+# _thread.start_new_thread(start_bot_event_loop, ())
 app.run()

@@ -81,8 +81,9 @@ class User(db.Model):
             address_postal_code=request.form['address_zip'],
             address_country_code='US')
         base_doc.add_virtual_document(type='SSN', value=request.form['ssn'])
-        base_doc.add_physical_document(type='GOVT_ID',
-                                       value=request.files['govt_id'])
+        img_file = request.files['govt_id']
+        base_doc.add_physical_document(type='GOVT_ID', mime_type='image/jpeg',
+                                       byte_stream=img_file.read())
 
     @staticmethod
     def create_debit_node(synapse_user, request):

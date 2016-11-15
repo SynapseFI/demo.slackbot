@@ -62,12 +62,26 @@ const bindFormSubmit = function() {
       dataType: 'json'
     })
       .done(function(data) {
-        console.log(data);
+        handleSuccess(data);
       })
       .fail(function(data) {
-        console.log(data);
+        handleFailure(data);
       });
   });
+};
+
+const handleSuccess = function(data) {
+  message = data['message'];
+  $('#alertMessage').text(message);
+  $('.alert').removeClass('invalid');
+  $('.alert').addClass('valid');
+};
+
+const handleFailure = function(data) {
+  message = JSON.parse(data['responseText'])['message'];
+  $('#alertMessage').text(message);
+  $('.alert').removeClass('valid');
+  $('.alert').addClass('invalid');
 };
 
 var base64;
