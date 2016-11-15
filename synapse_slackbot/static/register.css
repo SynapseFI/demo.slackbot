@@ -314,13 +314,13 @@ label+select {
     width: 100%;
 }
 
-.button.submit,
-.button.next {
+.submit,
+.next {
     background: #4eaacc;
     color: #fff;
 }
 
-.button.disabled {
+.button[disabled] {
     appearance: none;
     -moz-appearance: none;
     -webkit-appearance: none;

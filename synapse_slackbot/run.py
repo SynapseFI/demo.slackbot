@@ -27,7 +27,7 @@ def register(slack_id):
             User.from_request(slack_id, request)
             response = jsonify({'message': 'You are now registered.'})
             response.status_code = 200
-        except:
+        except Exception as e:
             response = jsonify({'message': 'Sorry, server error.'})
             response.status_code = 500
         return response
@@ -48,5 +48,5 @@ def start_bot_event_loop():
     else:
         print('Connection failed.')
 
-# _thread.start_new_thread(start_bot_event_loop, ())
+_thread.start_new_thread(start_bot_event_loop, ())
 app.run()

@@ -14,15 +14,38 @@ const bindListeners = function() {
   bindNextButton();
   bindFileInput();
   bindFormSubmit();
+  bindInputsFilled();
+};
+
+const bindInputsFilled = function() {
+  $('form').bind('keyup click change', function() {
+    const $inputs = $(activeTabSelector() + ' input');
+    let filled = true;
+    $inputs.each(function(index, element) {
+      if ($(element).val() == '') {
+        filled = false;
+      }
+    });
+    if (filled) {
+      enableNextButton();
+    }
+    else {
+      disableNextButton();
+    }
+  });
 };
 
 const bindBackButton = function() {
   $('.back').click(function(e) {
     e.preventDefault();
-    clearErrors()
+    clearErrors();
 
-    if (activeTab > 0) {
+    if (activeTab === 0) {
+      disableBackButton();
+    }
+    else {
       $(activeTabSelector()).removeClass('active');
+      enableBackButton();
 
       if (activeTab === 2) {
         hideSubmit();
@@ -44,6 +67,9 @@ const bindNextButton = function() {
       return;
     }
 
+    enableBackButton();
+    disableNextButton();
+
     if (activeTab < 2) {
       $(activeTabSelector()).removeClass('active');
       activeTab += 1;
@@ -56,16 +82,34 @@ const bindNextButton = function() {
   });
 };
 
+const enableBackButton = function() {
+  $('.back').removeAttr('disabled');
+};
+
+const disableBackButton = function () {
+  $('.back').attr('disabled', true);
+};
+
+const enableNextButton = function() {
+  $('.next').removeAttr('disabled');
+};
+
+const disableNextButton = function() {
+  $('.next').attr('disabled', true);
+};
+
 const hideSubmit = function() {
   $('.next').removeClass('inactive');
+  enableNextButton();
   $('.submit').addClass('inactive');
   $('.submit').attr('disabled', true);
 };
 
 const showSubmit = function() {
   $('.next').addClass('inactive');
+  disableNextButton();
   $('.submit').removeClass('inactive');
-  $('.submit').attr('disabled', false);
+  $('.submit').removeAttr('disabled');
 };
 
 const bindFormSubmit = function() {
@@ -101,8 +145,8 @@ const bindFormSubmit = function() {
 const handleSuccess = function(data) {
   clearErrors();
 
-  const message = alertMessage(data['message']);
-  $('.alert').append(message);
+  const $message = alertMessage(data['message']);
+  $('.alert').append($message);
   $('.alert').removeClass('invalid');
   $('.alert').addClass('valid');
 };
@@ -111,8 +155,8 @@ const handleFailure = function(data) {
   clearErrors();
 
   const errorText = JSON.parse(data['responseText'])['message'];
-  const message = alertMessage(errorText);
-  $('.alert').append(message);
+  const $message = alertMessage(errorText);
+  $('.alert').append($message);
   $('.alert').removeClass('valid');
   $('.alert').addClass('invalid');
 };
@@ -230,11 +274,11 @@ const tab2Validations = function() {
 };
 
 const renderErrors = function(errors) {
-  const errorElements = errors.map(function(errorText){
+  const $errorElements = errors.map(function(errorText){
     return alertMessage(errorText);
   });
 
-  $('.alert').append(errorElements);
+  $('.alert').append($errorElements);
   $('.alert').removeClass('valid');
   $('.alert').addClass('invalid');
 };
@@ -244,8 +288,8 @@ const alertMessage = function(text) {
 };
 
 const clearErrors = function() {
-  const alert = $('.alert');
-  alert.empty();
+  const $alert = $('.alert');
+  $alert.empty();
   $('.alert').removeClass('valid');
   $('.alert').removeClass('invalid');
 };
