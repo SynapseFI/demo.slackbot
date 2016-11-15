@@ -19,6 +19,7 @@ const bindListeners = function() {
 const bindBackButton = function() {
   $('.back').click(function(e) {
     e.preventDefault();
+    clearErrors()
 
     if (activeTab > 0) {
       $(activeTabSelector()).removeClass('active');
@@ -36,6 +37,7 @@ const bindBackButton = function() {
 const bindNextButton = function() {
   $('.next').click(function(e) {
     e.preventDefault();
+    clearErrors();
 
     const errors = checkValidationErrors();
     if (errors.length > 0) {
@@ -69,6 +71,7 @@ const showSubmit = function() {
 const bindFormSubmit = function() {
   $('form').submit(function(e) {
     e.preventDefault();
+    clearErrors();
 
     const errors = checkValidationErrors();
     if (errors.length > 0) {
@@ -96,15 +99,20 @@ const bindFormSubmit = function() {
 };
 
 const handleSuccess = function(data) {
-  const message = data['message'];
-  $('#alertMessage').text(data['message']);
+  clearErrors();
+
+  const message = alertMessage(data['message']);
+  $('.alert').append(message);
   $('.alert').removeClass('invalid');
   $('.alert').addClass('valid');
 };
 
 const handleFailure = function(data) {
-  const message = JSON.parse(data['responseText'])['message'];
-  $('#alertMessage').text(message);
+  clearErrors();
+
+  const errorText = JSON.parse(data['responseText'])['message'];
+  const message = alertMessage(errorText);
+  $('.alert').append(message);
   $('.alert').removeClass('valid');
   $('.alert').addClass('invalid');
 };
@@ -206,11 +214,22 @@ const tab2Validations = function() {
 };
 
 const renderErrors = function(errors) {
-  $('.alert').empty();
-  const errorElements = errors.map(function(error){
-    return $('<p class="alert-message">' + error + '</p>');
+  const errorElements = errors.map(function(errorText){
+    return alertMessage(errorText);
   });
+
   $('.alert').append(errorElements);
   $('.alert').removeClass('valid');
   $('.alert').addClass('invalid');
+};
+
+const alertMessage = function(text) {
+  return $('<p class="alert-message">' + text + '</p>');
+};
+
+const clearErrors = function() {
+  const alert = $('.alert');
+  alert.empty();
+  $('.alert').removeClass('valid');
+  $('.alert').removeClass('invalid');
 };
