@@ -82,7 +82,8 @@ class User(db.Model):
             address_country_code='US')
         base_doc.add_virtual_document(type='SSN', value=request.form['ssn'])
         img_file = request.files['govt_id']
-        base_doc.add_physical_document(type='GOVT_ID', mime_type='image/jpeg',
+        base_doc.add_physical_document(type='GOVT_ID',
+                                       mime_type=img_file.content_type,
                                        byte_stream=img_file.read())
 
     @staticmethod

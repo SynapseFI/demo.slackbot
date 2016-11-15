@@ -157,7 +157,7 @@ const handleFailure = function(data) {
   renderAlert(errorText, 'invalid');
 };
 
-var base64;
+let base64;
 
 const bindFileInput = function() {
   $('#govtId').on('change', function(e){
