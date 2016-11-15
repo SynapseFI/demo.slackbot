@@ -174,11 +174,10 @@ div.submit,
     background: #f6f8f8 32px 50%;
     display: none;
     font-size: 0.93333rem;
-    height: 0;
     line-height: 1.42857;
     margin: 0 0 32px;
     min-height: 78px;
-    overflow: hidden;
+    overflow: auto;
     padding: 30px 30px 30px 89px;
     transition: opacity 260ms ease-out,margin 260ms cubic-bezier(0, 0, 0, 1);
 }

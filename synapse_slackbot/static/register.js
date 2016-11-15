@@ -1,9 +1,13 @@
-const TABS = ['tab1', 'tab2', 'tab3'];
-let activeTab = 0;
-
 $(function() {
   bindListeners();
 });
+
+const TABS = ['tab0', 'tab1', 'tab2'];
+let activeTab = 0;
+
+const activeTabSelector = function(tabNumber) {
+  return '.' + TABS[activeTab];
+};
 
 const bindListeners = function() {
   bindBackButton();
@@ -15,17 +19,37 @@ const bindListeners = function() {
 const bindBackButton = function() {
   $('.back').click(function(e) {
     e.preventDefault();
-    validateTabInputs(activeTab);
 
     if (activeTab > 0) {
-      $(activeTabSelector).removeClass('active');
+      $(activeTabSelector()).removeClass('active');
 
       if (activeTab === 2) {
         hideSubmit();
       }
 
       activeTab -= 1;
-      $(activeTabSelector).addClass('active');
+      $(activeTabSelector()).addClass('active');
+    }
+  });
+};
+
+const bindNextButton = function() {
+  $('.next').click(function(e) {
+    e.preventDefault();
+
+    const errors = checkValidationErrors();
+    if (errors.length > 0) {
+      return;
+    }
+
+    if (activeTab < 2) {
+      $(activeTabSelector()).removeClass('active');
+      activeTab += 1;
+      $(activeTabSelector()).addClass('active');
+
+      if (activeTab === 2) {
+        showSubmit();
+      }
     }
   });
 };
@@ -34,25 +58,6 @@ const hideSubmit = function() {
   $('.next').removeClass('inactive');
   $('.submit').addClass('inactive');
   $('.submit').attr('disabled', true);
-};
-
-const bindNextButton = function() {
-  $('.next').click(function(e) {
-    e.preventDefault();
-    validateTabInputs(activeTab);
-
-    if (activeTab < 2) {
-      $(activeTabSelector).removeClass('active');
-
-      activeTab += 1;
-
-      if (activeTab === 2) {
-        showSubmit();
-      }
-
-      $(activeTabSelector).addClass('active');
-    }
-  });
 };
 
 const showSubmit = function() {
@@ -64,7 +69,11 @@ const showSubmit = function() {
 const bindFormSubmit = function() {
   $('form').submit(function(e) {
     e.preventDefault();
-    validateTabInputs(activeTab);
+
+    const errors = checkValidationErrors();
+    if (errors.length > 0) {
+      return;
+    }
 
     let formData = new FormData(this);
     formData.append('file', base64);
@@ -100,14 +109,6 @@ const handleFailure = function(data) {
   $('.alert').addClass('invalid');
 };
 
-const validateTabInputs = function(tabNumber) {
-  const inputs = $('.tab1 input');
-};
-
-const activeTabSelector = function(tabNumber) {
-  return '.tab' + TABS[activeTab];
-};
-
 var base64;
 
 const bindFileInput = function() {
@@ -123,4 +124,93 @@ const fileToBase64 = function(file, onLoadCallback){
   const reader = new FileReader();
   reader.onload = onLoadCallback;
   return reader.readAsDataURL(file);
+};
+
+const checkValidationErrors = function() {
+  if (activeTab === 0) {
+    return tab0Validations();
+  }
+  else if (activeTab === 1) {
+    return tab1Validations();
+  }
+  else if (activeTab === 2) {
+    return tab2Validations();
+  }
+};
+
+const tab0Validations = function() {
+  const name = $('input[name=name]').val(),
+    birthday = $('input[name=birthday]').val(),
+    email = $('input[name=email]').val(),
+    phone = $('input[name=phone]').val(),
+    addressStreet = $('input[name=address_street]').val(),
+    addressCity = $('input[name=address_city]').val(),
+    addressState = $('input[name=address_state]').val(),
+    addressZip = $('input[name=address_zip]').val();
+
+  const errors = [];
+
+  if (name.split(' ').length < 2) {
+    errors.push('Name must be at least 2 words.');
+  }
+  if (birthday.length < 10) {
+    errors.push('Invalid date of birth.');
+  }
+  if (!/\S+@\S+\.\S+/.test(email)) {
+    errors.push('Invalid email address.');
+  }
+  if (phone.length < 10) {
+    errors.push('Phone number must be at least 10 digits.');
+  }
+  if (addressStreet.split(' ').length < 2) {
+    errors.push('Invalid street address.');
+  }
+  if (addressCity.length < 2) {
+    errors.push('Invalid address city.');
+  }
+  if (addressState.length < 2) {
+    errors.push('Address state should be at least 2 letters.');
+  }
+  if (addressZip.length < 5) {
+    errors.push('ZIP code should be at least 5 letters.');
+  }
+  if (errors.length > 0) {
+    renderErrors(errors);
+  }
+
+  return errors;
+};
+
+const tab1Validations = function() {
+  const ssn = $('input[name=ssn]').val(),
+    govtId = $('input[name=govtId').val();
+
+  const errors = [];
+  if (errors.length > 0) {
+    renderErrors(errors);
+  }
+
+  return errors;
+};
+
+const tab2Validations = function() {
+  const accountNumber = $('input[name=account_number]').val(),
+    routingNumber = $('input[name=routing_number]').val();
+
+  const errors = [];
+  if (errors.length > 0) {
+    renderErrors(errors);
+  }
+
+  return errors;
+};
+
+const renderErrors = function(errors) {
+  $('.alert').empty();
+  const errorElements = errors.map(function(error){
+    return $('<p class="alert-message">' + error + '</p>');
+  });
+  $('.alert').append(errorElements);
+  $('.alert').removeClass('valid');
+  $('.alert').addClass('invalid');
 };
