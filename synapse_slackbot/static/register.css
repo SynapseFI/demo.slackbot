@@ -192,7 +192,7 @@ div.submit,
     display: block;
 }
 
-.alert.pending {
+.pending {
     border-left: 6px solid #eef04e;
     display: block;
 }
@@ -206,6 +206,10 @@ input {
 
 input[type=date] {
     height: 41.3125px;
+}
+
+input.invalid {
+    border: 1px solid #f1564f;
 }
 
 label {
@@ -259,6 +263,11 @@ label+input,
 label+textarea,
 label+select {
     margin-top: 0.22222em;
+}
+
+input:focus {
+    border-color: #4eaacc;
+    color: #4eaacc;
 }
 
 .half {

@@ -187,40 +187,54 @@ const checkValidationErrors = function() {
 };
 
 const tab0Validations = function() {
-  const name = $('input[name=name]').val(),
-    birthday = $('input[name=birthday]').val(),
-    email = $('input[name=email]').val(),
-    phone = $('input[name=phone]').val(),
-    addressStreet = $('input[name=address_street]').val(),
-    addressCity = $('input[name=address_city]').val(),
-    addressState = $('input[name=address_state]').val(),
-    addressZip = $('input[name=address_zip]').val();
+  const fields = {
+    $name: $('input[name=name]'),
+    $birthday: $('input[name=birthday]'),
+    $email: $('input[name=email]'),
+    $phone: $('input[name=phone]'),
+    $addressStreet: $('input[name=address_street]'),
+    $addressCity: $('input[name=address_city]'),
+    $addressState: $('input[name=address_state]'),
+    $addressZip: $('input[name=address_zip]')
+  };
+
+  $.each(fields, function(_, $input) {
+    $input.removeClass('invalid');
+  });
 
   const errors = [];
 
-  if (name.split(' ').length < 2) {
+  if (fields.$name.val().split(' ').length < 2) {
     errors.push('Name must be at least 2 words.');
+    fields.$name.addClass('invalid');
   }
-  if (birthday.length < 10) {
+  if (fields.$birthday.val().length < 10) {
     errors.push('Invalid date of birth.');
+    fields.$birthday.addClass('invalid');
   }
-  if (!/\S+@\S+\.\S+/.test(email)) {
+  if (!/\S+@\S+\.\S+/.test(fields.$email.val())) {
     errors.push('Invalid email address.');
+    fields.$email.addClass('invalid');
   }
-  if (phone.length < 10) {
+  if (fields.$phone.val().length < 10) {
     errors.push('Phone number must be at least 10 digits.');
+    fields.$phone.addClass('invalid');
   }
-  if (addressStreet.split(' ').length < 2) {
+  if (fields.$addressStreet.val().split(' ').length < 2) {
     errors.push('Invalid street address.');
+    fields.$addressStreet.addClass('invalid');
   }
-  if (addressCity.length < 2) {
+  if (fields.$addressCity.val().length < 2) {
     errors.push('Invalid address city.');
+    fields.$addressCity.addClass('invalid');
   }
-  if (addressState.length < 2) {
+  if (fields.$addressState.val().length < 2) {
     errors.push('Address state should be at least 2 letters.');
+    fields.$addressState.addClass('invalid');
   }
-  if (addressZip.length < 5) {
+  if (fields.$addressZip.val().length < 5) {
     errors.push('ZIP code should be at least 5 letters.');
+    fields.$addressZip.addClass('invalid');
   }
   if (errors.length > 0) {
     renderErrors(errors);
@@ -230,16 +244,24 @@ const tab0Validations = function() {
 };
 
 const tab1Validations = function() {
-  const ssn = $('input[name=ssn]').val(),
-    govtId = $('input[name=govt_id').val();
+  const fields = {
+    $ssn: $('input[name=ssn]'),
+    $govtId: $('input[name=govt_id')
+  };
+
+  $.each(fields, function(_, $input) {
+    $input.removeClass('invalid');
+  });
 
   const errors = [];
 
-  if (ssn.length < 4) {
+  if (fields.$ssn.val().length < 4) {
     errors.push('SSN must be at least 4 digits.');
+    fields.$ssn.addClass('invalid');
   }
-  if (govtId.length < 4) {
+  if (fields.$govtId.val().length < 4) {
     errors.push('Photo ID image required.');
+    fields.$govtId.addClass('invalid');
   }
 
   if (errors.length > 0) {
@@ -250,16 +272,24 @@ const tab1Validations = function() {
 };
 
 const tab2Validations = function() {
-  const accountNumber = $('input[name=account_number]').val(),
-    routingNumber = $('input[name=routing_number]').val();
+  const fields = {
+    $accountNumber: $('input[name=account_number]'),
+    $routingNumber: $('input[name=routing_number]')
+  };
+
+  $.each(fields, function(_, $input) {
+    $input.removeClass('invalid');
+  });
 
   const errors = [];
 
-  if (accountNumber < 6) {
+  if (fields.$accountNumber.val() < 6) {
     errors.push('Account number must be at least 6 digits.');
+    fields.$accountNumber.addClass('invalid');
   }
-  if (routingNumber.length !== 9) {
+  if (fields.$routingNumber.val().length !== 9) {
     errors.push('Routing number must be 9 digits.');
+    fields.$routingNumber.addClass('invalid');
   }
 
   if (errors.length > 0) {
