@@ -1,69 +1,23 @@
 ## Slackbot commands
-Enter these commands in Slack when @synapse is in the channel.
+Enter these commands in Slack after adding @synapse to the channel.
 
-#### Help
-```
-@synapse help
-```
+*Help*
+>@synapse help
 
-#### Register new user
-```
-@synapse register name Steven Broderick | email steven@synapsepay.com | phone 555-555-5555
-```
+*Schedule a one-time or recurring savings transfer:*
+>@synapse save `[amount]` (in `[number]` days) / (every `[number]` days)
 
-#### See your user info
-```
-@synapse whoami
-```
+*Return basic information about the user:*
+>@synapse whoami
 
-#### Add address
-```
-@synapse add_address street 742 Evergreen Terrace | city Springfield | state OR | zip 94110 | dob 3/19/1942
-```
+*Activate a node by verifying micro-deposit amounts:*
+>@synapse verify `[microdeposit amount 1]` `[microdeposit amount 2]`
 
-#### Add SSN
-```
-@synapse add_ssn 2222
-```
+*List most recent transaction history:*
+>@synapse history
 
-#### Add photo ID
-```
-# as the comment text for the image
-@synapse add_photo_id
-```
+*List savings balance:*
+>@synapse balance
 
-#### Add node
-```
-@synapse add_node nickname Primary Checking | account 112222555 | routing 051000017 | type CHECKING
-@synapse add_node nickname Rainy Day Fund | account 2222222222 | routing 051000017 | type SAVINGS
-```
-
-#### Verify a node's microdeposits
-```
-@synapse verify NODE_ID 0.1 0.1
-```
-
-#### List nodes
-```
-@synapse list_nodes
-```
-
-#### List transactions
-```
-@synapse list_transactions from FROM_NODE_ID
-```
-
-#### Send a transaction
-```
-@synapse send 1.00 from SENDING_NODE_ID to RECEIVING_NODE_ID
-```
-
-#### Schedule a transaction (in days only)
-```
-@synapse send 1.00 from SENDING_NODE_ID to RECEIVING_NODE_ID in 2 days
-```
-
-#### Set up a recurring transaction (in days only)
-```
-@synapse send 1.00 from SENDING_NODE_ID to RECEIVING_NODE_ID every 30 days
-```
+*List the bank accounts associated with the user:*
+>@synapse nodes

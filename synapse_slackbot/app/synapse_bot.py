@@ -19,7 +19,7 @@ class SynapseBot():
         'history': {
             'function_name': history,
             'example': '@synapse history',
-            'description': 'List most recent history:'
+            'description': 'List most recent transaction history:'
         },
         'nodes': {
             'function_name': list_nodes,
