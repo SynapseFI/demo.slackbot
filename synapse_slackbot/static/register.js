@@ -146,13 +146,11 @@ const bindFormSubmit = function() {
 
 const handleSuccess = function(data) {
   clearAlerts();
-
   renderAlert(data['message'], 'valid');
 };
 
 const handleFailure = function(data) {
   clearAlerts();
-
   const errorText = JSON.parse(data['responseText'])['message'];
   renderAlert(errorText, 'invalid');
 };
@@ -161,7 +159,6 @@ let base64;
 
 const bindFileInput = function() {
   $('#govtId').on('change', function(e){
-    let base64;
     fileToBase64(this.files[0], function(e) {
       base64 = (e.target.result);
     });
@@ -198,9 +195,7 @@ const tab0Validations = function() {
     $addressZip: $('input[name=address_zip]')
   };
 
-  $.each(fields, function(_, $input) {
-    $input.removeClass('invalid');
-  });
+  resetFieldHighlighting(fields);
 
   const errors = [];
 
@@ -249,9 +244,7 @@ const tab1Validations = function() {
     $govtId: $('input[name=govt_id')
   };
 
-  $.each(fields, function(_, $input) {
-    $input.removeClass('invalid');
-  });
+  resetFieldHighlighting(fields);
 
   const errors = [];
 
@@ -277,9 +270,7 @@ const tab2Validations = function() {
     $routingNumber: $('input[name=routing_number]')
   };
 
-  $.each(fields, function(_, $input) {
-    $input.removeClass('invalid');
-  });
+  resetFieldHighlighting(fields);
 
   const errors = [];
 
@@ -299,6 +290,12 @@ const tab2Validations = function() {
   return errors;
 };
 
+const resetFieldHighlighting = function(fields) {
+  $.each(fields, function(_, $input) {
+    $input.removeClass('invalid');
+  });
+};
+
 const renderErrors = function(errors) {
   const $errorElements = errors.forEach(function(errorText){
     renderAlert(errorText, 'invalid');
@@ -308,14 +305,12 @@ const renderErrors = function(errors) {
 const clearAlerts = function() {
   const $alert = $('.alert');
   $alert.empty();
-  $alert.removeClass('valid');
-  $alert.removeClass('invalid');
+  $alert.removeClass('valid invalid pending');
 };
 
 const renderAlert = function(message, status) {
-  const $message = alertMessage(message),
-    $alert = $('.alert');
-  $alert.append($message);
+  const $alert = $('.alert');
+  $alert.append(alertMessage(message));
   $alert.removeClass('valid invalid pending');
   $alert.addClass(status);
 };
