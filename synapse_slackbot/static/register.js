@@ -10,23 +10,17 @@ const activeTabSelector = function(tabNumber) {
 };
 
 const bindListeners = function() {
-  bindBackButton();
-  bindNextButton();
-  bindFileInput();
-  bindFormSubmit();
-  bindInputsFilled();
+  bindListenerBackButton();
+  bindListenerNextButton();
+  bindListenerFileInput();
+  bindListenerFormSubmit();
+  bindListenerInputChange();
+  bindGoogleAddressAutocomplete();
 };
 
-const bindInputsFilled = function() {
+const bindListenerInputChange = function() {
   $('form').bind('keyup click change', function() {
-    const $inputs = $(activeTabSelector() + ' input');
-    let filled = true;
-    $inputs.each(function(index, element) {
-      if ($(element).val() == '') {
-        filled = false;
-      }
-    });
-    if (filled) {
+    if (checkAllTabInputsFilled()) {
       enableNextButton();
     }
     else {
@@ -35,51 +29,77 @@ const bindInputsFilled = function() {
   });
 };
 
-const bindBackButton = function() {
+const checkAllTabInputsFilled = function() {
+  const $inputs = $(activeTabSelector() + ' input');
+  let filled = true;
+  $inputs.each(function(index, element) {
+    if ($(element).val() == '') {
+      filled = false;
+    }
+  });
+  return filled;
+};
+
+const bindListenerBackButton = function() {
   $('.back').click(function(e) {
     e.preventDefault();
-    clearAlerts();
-
-    if (activeTab === 0) {
-      disableBackButton();
-    }
-    else {
-      $(activeTabSelector()).removeClass('active');
-      enableBackButton();
-
-      if (activeTab === 2) {
-        hideSubmit();
-      }
-
-      activeTab -= 1;
-      $(activeTabSelector()).addClass('active');
-    }
+    goBackTab();
   });
 };
 
-const bindNextButton = function() {
+const bindListenerNextButton = function() {
   $('.next').click(function(e) {
     e.preventDefault();
-    clearAlerts();
 
-    const errors = checkValidationErrors();
-    if (errors.length > 0) {
+    if (checkValidationErrors().length > 0) {
       return;
     }
 
-    enableBackButton();
-    disableNextButton();
-
-    if (activeTab < 2) {
-      $(activeTabSelector()).removeClass('active');
-      activeTab += 1;
-      $(activeTabSelector()).addClass('active');
-
-      if (activeTab === 2) {
-        showSubmit();
-      }
-    }
+    goForwardTab();
   });
+};
+
+const goBackTab = function() {
+  clearAlerts();
+
+  if (activeTab === 0) {
+    disableBackButton();
+  }
+  else {
+    hideActiveTab();
+    enableBackButton();
+
+    if (activeTab === 2) {
+      hideSubmit();
+    }
+
+    activeTab -= 1;
+    showActiveTab();
+  }
+};
+
+const goForwardTab = function() {
+  clearAlerts();
+  enableBackButton();
+  disableNextButton();
+
+  if (activeTab < 2) {
+    hideActiveTab();
+    activeTab += 1;
+    showActiveTab();
+
+    if (activeTab === 2) {
+      showSubmit();
+    }
+  }
+};
+
+const hideActiveTab = function() {
+  $(activeTabSelector()).removeClass('active');
+};
+
+const showActiveTab = function() {
+  $(activeTabSelector()).addClass('active');
 };
 
 const enableBackButton = function() {
@@ -112,7 +132,7 @@ const showSubmit = function() {
   $('.submit').removeAttr('disabled');
 };
 
-const bindFormSubmit = function() {
+const bindListenerFormSubmit = function() {
   $('form').submit(function(e) {
     e.preventDefault();
     clearAlerts();
@@ -157,7 +177,7 @@ const handleFailure = function(data) {
 
 let base64;
 
-const bindFileInput = function() {
+const bindListenerFileInput = function() {
   $('#govtId').on('change', function(e){
     fileToBase64(this.files[0], function(e) {
       base64 = (e.target.result);
@@ -302,4 +322,15 @@ const renderAlert = function(message, status) {
 
 const alertMessage = function(text) {
   return $('<p class="alert-message">' + text + '</p>');
+};
+
+
+const bindGoogleAddressAutocomplete = function() {
+  const input = document.getElementById('address');
+  const options = {
+    types: ['address'],
+    componentRestrictions: {country: 'us'}
+  };
+
+  let autocomplete = new google.maps.places.Autocomplete(input, options);
 };
