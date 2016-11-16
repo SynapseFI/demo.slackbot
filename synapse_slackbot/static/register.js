@@ -189,10 +189,7 @@ const tab0Validations = function() {
     $birthday: $('input[name=birthday]'),
     $email: $('input[name=email]'),
     $phone: $('input[name=phone]'),
-    $addressStreet: $('input[name=address_street]'),
-    $addressCity: $('input[name=address_city]'),
-    $addressState: $('input[name=address_state]'),
-    $addressZip: $('input[name=address_zip]')
+    $address: $('input[name=address]')
   };
 
   resetFieldHighlighting(fields);
@@ -215,21 +212,9 @@ const tab0Validations = function() {
     errors.push('Phone number must be at least 10 digits.');
     fields.$phone.addClass('invalid');
   }
-  if (fields.$addressStreet.val().split(' ').length < 2) {
-    errors.push('Invalid street address.');
-    fields.$addressStreet.addClass('invalid');
-  }
-  if (fields.$addressCity.val().length < 2) {
-    errors.push('Invalid address city.');
-    fields.$addressCity.addClass('invalid');
-  }
-  if (fields.$addressState.val().length < 2) {
-    errors.push('Address state should be at least 2 letters.');
-    fields.$addressState.addClass('invalid');
-  }
-  if (fields.$addressZip.val().length < 5) {
-    errors.push('ZIP code should be at least 5 letters.');
-    fields.$addressZip.addClass('invalid');
+  if (fields.$address.val().split(' ').length < 2) {
+    errors.push('Invalid address.');
+    fields.$address.addClass('invalid');
   }
   if (errors.length > 0) {
     renderErrors(errors);
