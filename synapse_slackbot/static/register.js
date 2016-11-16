@@ -12,33 +12,14 @@ const activeTabSelector = function(tabNumber) {
 const bindListeners = function() {
   bindListenerBackButton();
   bindListenerNextButton();
+  bindListenerInputChange();
   bindListenerFileInput();
   bindListenerFormSubmit();
-  bindListenerInputChange();
   bindGoogleAddressAutocomplete();
 };
 
-const bindListenerInputChange = function() {
-  $('form').bind('keyup click change', function() {
-    if (checkAllTabInputsFilled()) {
-      enableNextButton();
-    }
-    else {
-      disableNextButton();
-    }
-  });
-};
 
-const checkAllTabInputsFilled = function() {
-  const $inputs = $(activeTabSelector() + ' input');
-  let filled = true;
-  $inputs.each(function(index, element) {
-    if ($(element).val() == '') {
-      filled = false;
-    }
-  });
-  return filled;
-};
+// EVENT LISTENERS
 
 const bindListenerBackButton = function() {
   $('.back').click(function(e) {
@@ -58,6 +39,55 @@ const bindListenerNextButton = function() {
     goForwardTab();
   });
 };
+
+const bindListenerInputChange = function() {
+  $('form').bind('keyup click change', function() {
+    if (checkAllTabInputsFilled()) {
+      enableNextButton();
+    }
+    else {
+      disableNextButton();
+    }
+  });
+};
+
+let base64;
+
+const bindListenerFileInput = function() {
+  $('#govtId').on('change', function(e){
+    fileToBase64(this.files[0], function(e) {
+      base64 = (e.target.result);
+    });
+  });
+};
+
+const bindListenerFormSubmit = function() {
+  $('form').submit(function(e) {
+    e.preventDefault();
+    clearAlerts();
+
+    const errors = checkValidationErrors();
+    if (errors.length > 0) {
+      return;
+    }
+
+    transmitFormData(this);
+  });
+};
+
+let autocomplete;
+const bindGoogleAddressAutocomplete = function() {
+  const input = document.getElementById('address');
+  const options = {
+    types: ['address'],
+    componentRestrictions: {country: 'us'}
+  };
+
+  autocomplete = new google.maps.places.Autocomplete(input, options);
+};
+
+
+// TAB NAV / BUTTON BEHAVIOR
 
 const goBackTab = function() {
   clearAlerts();
@@ -132,36 +162,49 @@ const showSubmit = function() {
   $('.submit').removeAttr('disabled');
 };
 
-const bindListenerFormSubmit = function() {
-  $('form').submit(function(e) {
-    e.preventDefault();
-    clearAlerts();
-
-    const errors = checkValidationErrors();
-    if (errors.length > 0) {
-      return;
+const checkAllTabInputsFilled = function() {
+  const $inputs = $(activeTabSelector() + ' input');
+  let filled = true;
+  $inputs.each(function(index, element) {
+    if ($(element).val() == '') {
+      filled = false;
     }
-
-    let formData = new FormData(this);
-    formData.append('file', base64);
-
-    $.ajax({
-      url: $(this).attr('action'),
-      method: 'POST',
-      data: formData,
-      processData: false,
-      contentType: false,
-      dataType: 'json'
-    })
-      .done(function(data) {
-        handleSuccess(data);
-      })
-      .fail(function(data) {
-        handleFailure(data);
-      });
-
-    renderAlert('Please wait...', 'pending');
   });
+  return filled;
+};
+
+
+// FORM SUBMISSION
+
+const transmitFormData = function(form) {
+  const formData = prepFormData(form);
+  renderAlert('Please wait...', 'pending');
+
+  $.ajax({
+    url: $(this).attr('action'),
+    method: 'POST',
+    data: formData,
+    processData: false,
+    contentType: false,
+    dataType: 'json'
+  })
+    .done(function(data) {
+      handleSuccess(data);
+    })
+    .fail(function(data) {
+      handleFailure(data);
+    });
+};
+
+const prepFormData = function(form) {
+  const formData = new FormData(form);
+  const address = parseAddressFromAutocomplete(autocomplete);
+  formData.set('address_street', address.street);
+  formData.set('address_city', address.city);
+  formData.set('address_state', address.state);
+  formData.set('address_zip', address.zip);
+  formData.append('file', base64);
+  return formData;
 };
 
 const handleSuccess = function(data) {
@@ -175,21 +218,8 @@ const handleFailure = function(data) {
   renderAlert(errorText, 'invalid');
 };
 
-let base64;
 
-const bindListenerFileInput = function() {
-  $('#govtId').on('change', function(e){
-    fileToBase64(this.files[0], function(e) {
-      base64 = (e.target.result);
-    });
-  });
-};
-
-const fileToBase64 = function(file, onLoadCallback){
-  const reader = new FileReader();
-  reader.onload = onLoadCallback;
-  return reader.readAsDataURL(file);
-};
+// INPUT VALIDATION
 
 const checkValidationErrors = function() {
   if (activeTab === 0) {
@@ -301,6 +331,13 @@ const resetFieldHighlighting = function(fields) {
   });
 };
 
+
+// ALERT MESSAGES
+
+const alertMessage = function(text) {
+  return $('<p class="alert-message">' + text + '</p>');
+};
+
 const renderErrors = function(errors) {
   const $errorElements = errors.forEach(function(errorText){
     renderAlert(errorText, 'invalid');
@@ -320,17 +357,25 @@ const renderAlert = function(message, status) {
   $alert.addClass(status);
 };
 
-const alertMessage = function(text) {
-  return $('<p class="alert-message">' + text + '</p>');
+
+// HELPERS
+
+const fileToBase64 = function(file, onLoadCallback){
+  const reader = new FileReader();
+  reader.onload = onLoadCallback;
+  return reader.readAsDataURL(file);
 };
 
-
-const bindGoogleAddressAutocomplete = function() {
-  const input = document.getElementById('address');
-  const options = {
-    types: ['address'],
-    componentRestrictions: {country: 'us'}
+const parseAddressFromAutocomplete = function(autocomplete) {
+  const addressFields = autocomplete.gm_accessors_.place.Fc.place.address_components;
+  const street = [addressFields[0].short_name, addressFields[1].short_name].join(' ');
+  const city = addressFields[3].long_name;
+  const state = addressFields[5].short_name;
+  const zip = addressFields[7].short_name;
+  return {
+    street: street,
+    city: city,
+    state: state,
+    zip: zip
   };
-
-  let autocomplete = new google.maps.places.Autocomplete(input, options);
 };

@@ -149,24 +149,6 @@ p {
     width: 0;
 }
 
-/* TAB BEHAVIOR */
-
-div.submit,
-.header,
-.tab {
-    display: none;
-}
-
-.inactive {
-    display: none !important;
-}
-
-.header.active,
-.submit.active,
-.tab.active {
-    display: inherit;
-}
-
 
 /* ALERT */
 
@@ -197,11 +179,30 @@ div.submit,
     display: block;
 }
 
-/* FORM */
+
+/* FORM / TAB BEHAVIOR / TAB NAV */
+
+.header,
+.tab {
+    display: none;
+}
+
+.active {
+    display: inherit;
+}
+
+.inactive {
+    display: none !important;
+}
 
 input {
     border-color: #b0babf;
     line-height: normal;
+}
+
+input:focus {
+    border-color: #4eaacc;
+    color: #4eaacc;
 }
 
 input[type=date] {
@@ -263,11 +264,6 @@ label+input,
 label+textarea,
 label+select {
     margin-top: 0.22222em;
-}
-
-input:focus {
-    border-color: #4eaacc;
-    color: #4eaacc;
 }
 
 .half {

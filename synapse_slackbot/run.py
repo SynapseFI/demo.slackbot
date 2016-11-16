@@ -59,5 +59,5 @@ def start_bot_event_loop():
     else:
         print('Connection failed.')
 
-_thread.start_new_thread(start_bot_event_loop, ())
+# _thread.start_new_thread(start_bot_event_loop, ())
 app.run()
