@@ -2,8 +2,9 @@ $(function() {
   bindListeners();
 });
 
-const TABS = ['tab0', 'tab1', 'tab2'];
+const TABS = ['tab0', 'tab1', 'tab2', 'tab3'];
 let activeTab = 0;
+const lastTab = TABS.length - 1;
 
 const activeTabSelector = function(tabNumber) {
   return '.' + TABS[activeTab];
@@ -65,12 +66,6 @@ const bindListenerFormSubmit = function() {
   $('form').submit(function(e) {
     e.preventDefault();
     clearAlerts();
-
-    const errors = checkValidationErrors();
-    if (errors.length > 0) {
-      return;
-    }
-
     transmitFormData(this);
   });
 };
@@ -99,7 +94,7 @@ const tabBackwards = function() {
     hideActiveTab();
     enableBackButton();
 
-    if (activeTab === 2) {
+    if (activeTab === lastTab) {
       hideSubmit();
     }
 
@@ -113,12 +108,12 @@ const tabForwards = function() {
   enableBackButton();
   disableNextButton();
 
-  if (activeTab < 2) {
+  if (activeTab < lastTab) {
     hideActiveTab();
     activeTab += 1;
     showActiveTab();
 
-    if (activeTab === 2) {
+    if (activeTab === lastTab) {
       showSubmit();
     }
   }
@@ -379,3 +374,8 @@ const parseAddressFromAutocomplete = function(autocomplete) {
     zip: zip
   };
 };
+
+
+// FOR TESTING
+
+const fillAllFields = true;
