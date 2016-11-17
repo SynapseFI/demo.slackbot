@@ -1,4 +1,6 @@
 $(function() {
+  const testing = true;
+  if (testing) prefillFields(); 
   bindListeners();
 });
 
@@ -14,9 +16,10 @@ const bindListeners = function() {
   bindListenerBackButton();
   bindListenerNextButton();
   bindListenerInputChange();
-  bindListenerFileInput();
-  bindListenerFormSubmit();
   bindGoogleAddressAutocomplete();
+  bindListenerFileInput();
+  bindListenersEditButtons();
+  bindListenerFormSubmit();
 };
 
 
@@ -53,20 +56,11 @@ const bindListenerInputChange = function() {
 };
 
 let base64;
-
 const bindListenerFileInput = function() {
   $('#govtId').on('change', function(e){
     fileToBase64(this.files[0], function(e) {
       base64 = (e.target.result);
     });
-  });
-};
-
-const bindListenerFormSubmit = function() {
-  $('form').submit(function(e) {
-    e.preventDefault();
-    clearAlerts();
-    transmitFormData(this);
   });
 };
 
@@ -81,42 +75,62 @@ const bindGoogleAddressAutocomplete = function() {
   autocomplete = new google.maps.places.Autocomplete(input, options);
 };
 
+const bindListenersEditButtons = function() {
+  $('#editTab0').on('click', function(e) {
+    e.preventDefault();
+    setActiveTab(0);
+  });
+  $('#editTab1').on('click', function(e) {
+    e.preventDefault();
+    setActiveTab(1);
+  });
+  $('#editTab2').on('click', function(e) {
+    e.preventDefault();
+    setActiveTab(2);
+  });
+};
+
+const bindListenerFormSubmit = function() {
+  $('form').submit(function(e) {
+    e.preventDefault();
+    clearAlerts();
+    transmitFormData(this);
+  });
+};
+
 
 // TAB NAV / BUTTON BEHAVIOR
 
-const tabBackwards = function() {
-  clearAlerts();
+const setActiveTab = function(tabNumber) {
+  hideActiveTab();
+  activeTab = tabNumber;
+  showActiveTab();
 
   if (activeTab === 0) {
     disableBackButton();
   }
   else {
-    hideActiveTab();
     enableBackButton();
-
-    if (activeTab === lastTab) {
-      hideSubmit();
-    }
-
-    activeTab -= 1;
-    showActiveTab();
   }
+
+  if (activeTab === lastTab) {
+    populateReviewFields();
+    showSubmit();
+  }
+  else {
+    hideSubmit();
+  }
+};
+
+const tabBackwards = function() {
+  clearAlerts();
+  setActiveTab(activeTab - 1);
 };
 
 const tabForwards = function() {
   clearAlerts();
-  enableBackButton();
   disableNextButton();
-
-  if (activeTab < lastTab) {
-    hideActiveTab();
-    activeTab += 1;
-    showActiveTab();
-
-    if (activeTab === lastTab) {
-      showSubmit();
-    }
-  }
+  setActiveTab(activeTab + 1);
 };
 
 const hideActiveTab = function() {
@@ -166,6 +180,18 @@ const checkAllTabInputsFilled = function() {
     }
   });
   return filled;
+};
+
+const populateReviewFields = function() {
+  $('#review_name').text($('input[name=name]').val()),
+  $('#review_birthday').text($('input[name=birthday]').val());
+  $('#review_email').text($('input[name=email]').val());
+  $('#review_phone').text($('input[name=phone]').val());
+  $('#review_address').text($('input[name=address]').val());
+  $('#review_ssn').text($('input[name=ssn]').val());
+  $('#review_govt_id').text($('input[name=govt_id').val());
+  $('#review_account_number').text($('input[name=account_number]').val());
+  $('#review_routing_number').text($('input[name=routing_number]').val());
 };
 
 
@@ -378,4 +404,23 @@ const parseAddressFromAutocomplete = function(autocomplete) {
 
 // FOR TESTING
 
-const fillAllFields = true;
+const prefillFields = function() {
+  const $name = $('input[name=name]'),
+    $birthday = $('input[name=birthday]'),
+    $email = $('input[name=email]'),
+    $phone = $('input[name=phone]'),
+    $address = $('input[name=address]'),
+    $ssn = $('input[name=ssn]'),
+    $govtId = $('input[name=govt_id'),
+    $accountNumber = $('input[name=account_number]'),
+    $routingNumber = $('input[name=routing_number]');
+
+  $name.val('Steven Broderick');
+  $birthday.val('1900-03-19');
+  $email.val('steven@synapsepay.com');
+  $phone.val('5555555555');
+  $address.val('123 Main St, San Francisco, CA 94119');
+  $ssn.val('2222');
+  $accountNumber.val('12345678');
+  $routingNumber.val('123456789');
+};

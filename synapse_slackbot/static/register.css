@@ -363,6 +363,11 @@ label+select {
 
 /* REVIEW TAB */
 
+a {
+    color: #4eaacc;
+    text-decoration: none;
+}
+
 dl {
     border-top: 1px solid #dadfe1;
     margin: 0 auto;
@@ -382,4 +387,19 @@ dt.heading {
 dl,
 dd {
     word-wrap: break-word;
+}
+
+@media only screen and (min-width: 568px) {
+    dt {
+        width: 13em;
+    }
+
+    dd {
+        margin-bottom: 0.8em;
+    }
+
+    dt,
+    dd {
+        display: inline-block;
+    }
 }
