@@ -28,7 +28,10 @@ def register(slack_id):
             return response
         try:
             User.from_request(slack_id, request)
-            response = jsonify({'message': 'You are now registered.'})
+            response = jsonify({
+                'message': 'You are now registered. Invite Synapsebot to a '\
+                           'Slack channel and say "@synapse help".'
+            })
             response.status_code = 200
         except SynapsePayError as e:
             response = jsonify({

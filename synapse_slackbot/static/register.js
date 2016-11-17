@@ -15,7 +15,7 @@ const activeTabSelector = function(tabNumber) {
 const bindListeners = function() {
   bindBackButton();
   bindNextButton();
-  bindInputChange();
+  bindFormChange();
   bindGoogleAddressAutocomplete();
   bindFileInput();
   bindEditButtons();
@@ -41,7 +41,7 @@ const bindNextButton = function() {
   });
 };
 
-const bindInputChange = function() {
+const bindFormChange = function() {
   $('form').bind('keyup click change', function() {
     if (checkAllTabInputsFilled()) {
       enableNextButton();
@@ -88,6 +88,7 @@ const bindEditButtons = function() {
 };
 
 const unbindEditButtons = function() {
+  $('.edit').unbind('click');
   $('.edit').on('click', () => false);
 };
 
@@ -155,11 +156,13 @@ const tabForwards = function() {
 };
 
 const hideActiveTab = function() {
-  $(activeTabSelector()).removeClass('active');
+  $('.breadcrumb' + activeTabSelector()).removeClass('active');
+  $('.tab' + activeTabSelector()).hide();
 };
 
 const showActiveTab = function() {
-  $(activeTabSelector()).addClass('active');
+  $('.breadcrumb' + activeTabSelector()).addClass('active');
+  $('.tab' + activeTabSelector()).show();
 };
 
 const enableBackButton = function() {
@@ -179,16 +182,14 @@ const disableNextButton = function() {
 };
 
 const hideSubmit = function() {
-  $('.next').removeClass('inactive');
+  $('.next').show();
   enableNextButton();
-  $('.submit').addClass('inactive');
   disableSubmit();
 };
 
 const showSubmit = function() {
-  $('.next').addClass('inactive');
+  $('.next').hide();
   disableNextButton();
-  $('.submit').removeClass('inactive');
   enableSubmit();
 };
 
@@ -204,9 +205,7 @@ const checkAllTabInputsFilled = function() {
   const $inputs = $(activeTabSelector() + ' input');
   let filled = true;
   $inputs.each(function(index, element) {
-    if ($(element).val() == '') {
-      filled = false;
-    }
+    if ($(element).val() == '') filled = false;
   });
   return filled;
 };
@@ -258,6 +257,9 @@ const prepFormData = function(form) {
 };
 
 const showConfirmation = function(data) {
+  clearAlerts();
+  $('.tab, .button').hide();
+  $('.breadcrumbs').css('visibility', 'hidden');
   renderAlert(data['message'], 'valid');
 };
 
@@ -315,10 +317,8 @@ const tab0Validations = function() {
     errors.push('Invalid address.');
     fields.$address.addClass('invalid');
   }
-  if (errors.length > 0) {
-    renderErrors(errors);
-  }
 
+  if (errors.length > 0) renderErrors(errors);
   return errors;
 };
 
@@ -342,7 +342,6 @@ const tab1Validations = function() {
   }
 
   if (errors.length > 0) renderErrors(errors);
-
   return errors;
 };
 
@@ -365,17 +364,12 @@ const tab2Validations = function() {
     fields.$routingNumber.addClass('invalid');
   }
 
-  if (errors.length > 0) {
-    renderErrors(errors);
-  }
-
+  if (errors.length > 0) renderErrors(errors);
   return errors;
 };
 
 const resetFieldHighlighting = function(fields) {
-  $.each(fields, function(_, $input) {
-    $input.removeClass('invalid');
-  });
+  $.each(fields, (_, $input) => $input.removeClass('invalid'));
 };
 
 
@@ -386,7 +380,7 @@ const alertMessage = function(text) {
 };
 
 const renderErrors = function(errors) {
-  const $errorElements = errors.forEach(function(errorText){
+  const $errorElements = errors.forEach(function(errorText) {
     renderAlert(errorText, 'invalid');
   });
 };

@@ -65,10 +65,6 @@ img {
     border: 0;
 }
 
-p {
-    margin: 0 auto;
-}
-
 
 /* SITE HEADER */
 
@@ -184,22 +180,10 @@ p {
 
 /* FORM / TAB BEHAVIOR / TAB NAV */
 
-.tab-header.active {
-    display: inherit;
-}
-
+.button.submit[disabled],
 .tab-header,
-.tab {
+.tab:not(.tab0) {
     display: none;
-}
-
-.submit.active,
-.tab.active {
-    display: inherit;
-}
-
-.inactive {
-    display: none !important;
 }
 
 input {
