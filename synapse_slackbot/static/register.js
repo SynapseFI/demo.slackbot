@@ -407,6 +407,9 @@ const parseAddressFromAutocomplete = function(autocomplete) {
 
 const bindLoadingSpinner = function() {
   const $spinner = $('#spinner').hide();
+  const spinner = new Spinner().spin();
+  $spinner.append(spinner.el);
+
   $(document)
     .ajaxStart(function() {
       $spinner.show();
