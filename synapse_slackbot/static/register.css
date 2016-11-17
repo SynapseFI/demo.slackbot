@@ -331,6 +331,7 @@ label+select {
 }
 
 .submit,
+.submit:focus,
 .next {
     background: #4eaacc;
     color: #fff;

@@ -20,6 +20,7 @@ const bindListeners = function() {
   bindListenerFileInput();
   bindListenersEditButtons();
   bindListenerFormSubmit();
+  bindLoadingSpinner();
 };
 
 
@@ -399,6 +400,20 @@ const parseAddressFromAutocomplete = function(autocomplete) {
     state: state,
     zip: zip
   };
+};
+
+
+// LOADING SPINNER
+
+const bindLoadingSpinner = function() {
+  const $spinner = $('#spinner').hide();
+  $(document)
+    .ajaxStart(function() {
+      $spinner.show();
+    })
+    .ajaxStop(function() {
+      $spinner.hide();
+    });
 };
 
 
