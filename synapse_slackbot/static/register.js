@@ -13,39 +13,35 @@ const activeTabSelector = function(tabNumber) {
 };
 
 const bindListeners = function() {
-  bindListenerBackButton();
-  bindListenerNextButton();
-  bindListenerInputChange();
+  bindBackButton();
+  bindNextButton();
+  bindInputChange();
   bindGoogleAddressAutocomplete();
-  bindListenerFileInput();
-  bindListenersEditButtons();
-  bindListenerFormSubmit();
+  bindFileInput();
+  bindEditButtons();
+  bindFormSubmit();
   bindLoadingSpinner();
 };
 
 
 // EVENT LISTENERS
 
-const bindListenerBackButton = function() {
+const bindBackButton = function() {
   $('.back').click(function(e) {
     e.preventDefault();
     tabBackwards();
   });
 };
 
-const bindListenerNextButton = function() {
+const bindNextButton = function() {
   $('.next').click(function(e) {
     e.preventDefault();
-
-    if (checkValidationErrors().length > 0) {
-      return;
-    }
-
+    if (checkValidationErrors().length > 0) return;
     tabForwards();
   });
 };
 
-const bindListenerInputChange = function() {
+const bindInputChange = function() {
   $('form').bind('keyup click change', function() {
     if (checkAllTabInputsFilled()) {
       enableNextButton();
@@ -57,7 +53,7 @@ const bindListenerInputChange = function() {
 };
 
 let base64;
-const bindListenerFileInput = function() {
+const bindFileInput = function() {
   $('#govtId').on('change', function(e){
     fileToBase64(this.files[0], function(e) {
       base64 = (e.target.result);
@@ -76,7 +72,7 @@ const bindGoogleAddressAutocomplete = function() {
   autocomplete = new google.maps.places.Autocomplete(input, options);
 };
 
-const bindListenersEditButtons = function() {
+const bindEditButtons = function() {
   $('#editTab0').on('click', function(e) {
     e.preventDefault();
     setActiveTab(0);
@@ -91,12 +87,36 @@ const bindListenersEditButtons = function() {
   });
 };
 
-const bindListenerFormSubmit = function() {
+const unbindEditButtons = function() {
+  $('.edit').on('click', () => false);
+};
+
+const bindFormSubmit = function() {
   $('form').submit(function(e) {
     e.preventDefault();
     clearAlerts();
     transmitFormData(this);
   });
+};
+
+const bindLoadingSpinner = function() {
+  const $spinner = $('#spinner').hide();
+  const spinner = new Spinner().spin();
+  $spinner.append(spinner.el);
+
+  $(document)
+    .ajaxStart(function() {
+      $spinner.show();
+      disableBackButton();
+      disableSubmit();
+      unbindEditButtons();
+    })
+    .ajaxStop(function() {
+      $spinner.hide();
+      enableBackButton();
+      enableSubmit();
+      bindEditButtons();
+    });
 };
 
 
@@ -162,14 +182,22 @@ const hideSubmit = function() {
   $('.next').removeClass('inactive');
   enableNextButton();
   $('.submit').addClass('inactive');
-  $('.submit').attr('disabled', true);
+  disableSubmit();
 };
 
 const showSubmit = function() {
   $('.next').addClass('inactive');
   disableNextButton();
   $('.submit').removeClass('inactive');
+  enableSubmit();
+};
+
+const enableSubmit = function() {
   $('.submit').removeAttr('disabled');
+};
+
+const disableSubmit = function() {
+  $('.submit').attr('disabled', true);
 };
 
 const checkAllTabInputsFilled = function() {
@@ -211,10 +239,10 @@ const transmitFormData = function(form) {
     dataType: 'json'
   })
     .done(function(data) {
-      handleSuccess(data);
+      showConfirmation(data);
     })
     .fail(function(data) {
-      handleFailure(data);
+      showError(data);
     });
 };
 
@@ -229,12 +257,11 @@ const prepFormData = function(form) {
   return formData;
 };
 
-const handleSuccess = function(data) {
-  clearAlerts();
+const showConfirmation = function(data) {
   renderAlert(data['message'], 'valid');
 };
 
-const handleFailure = function(data) {
+const showError = function(data) {
   clearAlerts();
   const errorText = JSON.parse(data['responseText'])['message'];
   renderAlert(errorText, 'invalid');
@@ -314,9 +341,7 @@ const tab1Validations = function() {
     fields.$govtId.addClass('invalid');
   }
 
-  if (errors.length > 0) {
-    renderErrors(errors);
-  }
+  if (errors.length > 0) renderErrors(errors);
 
   return errors;
 };
@@ -400,23 +425,6 @@ const parseAddressFromAutocomplete = function(autocomplete) {
     state: state,
     zip: zip
   };
-};
-
-
-// LOADING SPINNER
-
-const bindLoadingSpinner = function() {
-  const $spinner = $('#spinner').hide();
-  const spinner = new Spinner().spin();
-  $spinner.append(spinner.el);
-
-  $(document)
-    .ajaxStart(function() {
-      $spinner.show();
-    })
-    .ajaxStop(function() {
-      $spinner.hide();
-    });
 };
 
 

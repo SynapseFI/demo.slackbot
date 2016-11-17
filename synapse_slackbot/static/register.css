@@ -364,7 +364,7 @@ label+select {
 
 /* REVIEW TAB */
 
-a {
+.edit {
     color: #4eaacc;
     text-decoration: none;
 }
