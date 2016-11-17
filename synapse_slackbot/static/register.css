@@ -69,7 +69,8 @@ p {
     margin: 0 auto;
 }
 
-/* HEADER */
+
+/* SITE HEADER */
 
 .logo {
     line-height: 1;
@@ -83,6 +84,7 @@ p {
     margin: 0 auto;
     width: 149px;
 }
+
 
 /* BREADCRUMBS */
 
@@ -182,12 +184,17 @@ p {
 
 /* FORM / TAB BEHAVIOR / TAB NAV */
 
-.header,
+.tab-header.active {
+    display: inherit;
+}
+
+.tab-header,
 .tab {
     display: none;
 }
 
-.active {
+.submit.active,
+.tab.active {
     display: inherit;
 }
 

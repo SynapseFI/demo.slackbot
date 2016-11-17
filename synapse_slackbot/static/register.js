@@ -24,7 +24,7 @@ const bindListeners = function() {
 const bindListenerBackButton = function() {
   $('.back').click(function(e) {
     e.preventDefault();
-    goBackTab();
+    tabBackwards();
   });
 };
 
@@ -36,7 +36,7 @@ const bindListenerNextButton = function() {
       return;
     }
 
-    goForwardTab();
+    tabForwards();
   });
 };
 
@@ -89,7 +89,7 @@ const bindGoogleAddressAutocomplete = function() {
 
 // TAB NAV / BUTTON BEHAVIOR
 
-const goBackTab = function() {
+const tabBackwards = function() {
   clearAlerts();
 
   if (activeTab === 0) {
@@ -108,7 +108,7 @@ const goBackTab = function() {
   }
 };
 
-const goForwardTab = function() {
+const tabForwards = function() {
   clearAlerts();
   enableBackButton();
   disableNextButton();
