@@ -206,7 +206,7 @@ input.invalid {
 
 label {
     color: #788991;
-    display: block;
+    /*display: block;*/
     font-size: 1rem;
     font-weight: 500;
     -webkit-font-smoothing: antialiased;
@@ -223,7 +223,7 @@ textarea {
     border-radius: 0;
     box-shadow: none;
     color: #b0babf;
-    display: block;
+    /*display: block;*/
     font: 300 1.2rem / 1.33333 "Gotham SSm A","Gotham SSm B","Helvetica Neue",Helvetica,Arial,sans-serif;
     -webkit-font-smoothing: antialiased;
     outline: none;
@@ -321,6 +321,13 @@ label+select {
     color: #fff;
 }
 
+.submit:focus {
+    outline-color: -webkit-focus-ring-color;
+    outline-style: auto;
+    outline: -webkit-focus-ring-color auto 5px;
+    outline-width: 5px;
+}
+
 .button[disabled] {
     appearance: none;
     -moz-appearance: none;
@@ -346,12 +353,8 @@ label+select {
     width: 100%;
 }
 
-/* REVIEW TAB */
 
-.edit {
-    color: #4eaacc;
-    text-decoration: none;
-}
+/* REVIEW TAB */
 
 dl {
     border-top: 1px solid #dadfe1;
@@ -363,10 +366,12 @@ dt {
     color: #788991;
 }
 
-dt.heading {
-    font-weight: 500;
-    margin-bottom: 1.6em;
-    -webkit-font-smoothing: antialiased;
+dd {
+    margin: 0.26667em 0 1.6em;
+}
+
+dt {
+    display: block;
 }
 
 dl,
@@ -374,9 +379,29 @@ dd {
     word-wrap: break-word;
 }
 
+.heading dt {
+    display: inline-block;
+    font-weight: 500;
+    margin-bottom: 1.6em;
+    -webkit-font-smoothing: antialiased;
+}
+
+.heading dd {
+    float: right;
+}
+
+.heading .edit {
+    color: #4eaacc;
+    text-decoration: none;
+}
+
 @media only screen and (min-width: 568px) {
     dt {
         width: 13em;
+    }
+
+    .heading dd {
+        float: none;
     }
 
     dd {
@@ -384,7 +409,8 @@ dd {
     }
 
     dt,
-    dd {
+    dd,
+    .heading dt {
         display: inline-block;
     }
 }

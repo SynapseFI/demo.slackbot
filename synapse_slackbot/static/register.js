@@ -8,10 +8,6 @@ const TABS = ['tab0', 'tab1', 'tab2', 'tab3'];
 let activeTab = 0;
 const lastTab = TABS.length - 1;
 
-const activeTabSelector = function(tabNumber) {
-  return '.' + TABS[activeTab];
-};
-
 const bindListeners = function() {
   bindBackButton();
   bindNextButton();
@@ -88,8 +84,8 @@ const bindEditButtons = function() {
 };
 
 const unbindEditButtons = function() {
-  $('.edit').unbind('click');
-  $('.edit').on('click', () => false);
+  $('.edit a').unbind('click');
+  $('.edit a').on('click', () => false);
 };
 
 const bindFormSubmit = function() {
@@ -153,6 +149,7 @@ const tabForwards = function() {
   clearAlerts();
   disableNextButton();
   setActiveTab(activeTab + 1);
+  focusFirstInput();
 };
 
 const hideActiveTab = function() {
@@ -217,7 +214,7 @@ const populateReviewFields = function() {
   $('#review_phone').text($('input[name=phone]').val());
   $('#review_address').text($('input[name=address]').val());
   $('#review_ssn').text($('input[name=ssn]').val());
-  $('#review_govt_id').text($('input[name=govt_id').val());
+  $('#review_govt_id').text($('input[name=govt_id]').val());
   $('#review_account_number').text($('input[name=account_number]').val());
   $('#review_routing_number').text($('input[name=routing_number]').val());
 };
@@ -325,7 +322,7 @@ const tab0Validations = function() {
 const tab1Validations = function() {
   const fields = {
     $ssn: $('input[name=ssn]'),
-    $govtId: $('input[name=govt_id')
+    $govtId: $('input[name=govt_id]')
   };
 
   resetFieldHighlighting(fields);
@@ -401,6 +398,14 @@ const renderAlert = function(message, status) {
 
 // HELPERS
 
+const activeTabSelector = function() {
+  return '.' + TABS[activeTab];
+};
+
+const focusFirstInput = function()  {
+  $(activeTabSelector() + ' input').first().focus();
+};
+
 const fileToBase64 = function(file, onLoadCallback){
   const reader = new FileReader();
   reader.onload = onLoadCallback;
@@ -431,7 +436,7 @@ const prefillFields = function() {
     $phone = $('input[name=phone]'),
     $address = $('input[name=address]'),
     $ssn = $('input[name=ssn]'),
-    $govtId = $('input[name=govt_id'),
+    $govtId = $('input[name=govt_id]'),
     $accountNumber = $('input[name=account_number]'),
     $routingNumber = $('input[name=routing_number]');
 
