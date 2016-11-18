@@ -362,6 +362,10 @@ dl {
     padding: 24px 0 12px;
 }
 
+dl:last-of-type {
+    border-bottom: 1px solid #dadfe1;
+}
+
 dt {
     color: #788991;
 }
@@ -393,6 +397,12 @@ dd {
 .heading .edit {
     color: #4eaacc;
     text-decoration: none;
+}
+
+.disclosures {
+    font-weight: bold;
+    margin: 1.5em auto;
+    text-align: center;
 }
 
 @media only screen and (min-width: 568px) {

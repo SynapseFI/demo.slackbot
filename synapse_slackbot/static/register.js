@@ -1,6 +1,5 @@
 $(function() {
-  const testing = true;
-  if (testing) prefillFields(); 
+  // prefillFields(); 
   bindListeners();
 });
 
@@ -38,7 +37,7 @@ const bindNextButton = function() {
 };
 
 const bindFormChange = function() {
-  $('form').bind('keyup click change', function() {
+  $('form').bind('click keyup input', function() {
     if (checkAllTabInputsFilled()) {
       enableNextButton();
     }
