@@ -4,17 +4,34 @@ from synapse_pay_rest import User as SynapseUser
 from synapse_pay_rest.errors import SynapsePayError
 from synapse_slackbot.models import User
 from synapse_slackbot.synapse_client import synapse_client
-from .commands import balance, history, list_nodes, save, verify_node, whoami
+from .commands import balance, cancel, history, list_nodes, save, verify_node,\
+                      whoami
 
 
 class SynapseBot():
     """Provides a limited Slack interface for the Synapse API."""
 
     COMMANDS = {
+        'whoami': {
+            'function_name': whoami,
+            'example': '@synapse whoami',
+            'description': 'Return basic information about the user:'
+        },
         'balance': {
             'function_name': balance,
             'example': '@synapse balance',
             'description': 'List savings balance:'
+        },
+        'save': {
+            'function_name': save,
+            'example': ('@synapse save `[amount]` (in `[number]` '
+                        'days) / (every `[number]` days)'),
+            'description': 'Schedule a one-time or recurring savings transfer:'
+        },
+        'cancel': {
+            'function_name': cancel,
+            'example': ('@synapse cancel `[transaction_id]`'),
+            'description': ('Cancel a transaction that has not yet settled:')
         },
         'history': {
             'function_name': history,
@@ -26,22 +43,11 @@ class SynapseBot():
             'example': '@synapse nodes',
             'description': 'List the bank accounts associated with the user:'
         },
-        'save': {
-            'function_name': save,
-            'example': ('@synapse save `[amount]` (in `[number]` '
-                        'days) / (every `[number]` days)'),
-            'description': ('Schedule a one-time or recurring savings transfer:')
-        },
         'verify': {
             'function_name': verify_node,
             'example': ('@synapse verify `[microdeposit amount 1]` '
                         '`[microdeposit amount 2]`'),
-            'description': ('Activate a node by verifying micro-deposit amounts:')
-        },
-        'whoami': {
-            'function_name': whoami,
-            'example': '@synapse whoami',
-            'description': 'Return basic information about the user:'
+            'description': 'Activate a node by verifying micro-deposit amounts:'
         }
     }
 

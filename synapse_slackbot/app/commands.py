@@ -111,12 +111,22 @@ def create_recurring_transaction(**kwargs):
             recurring_transaction_summary(trans))
 
 
+def cancel(slack_user_id, synapse_user, params):
+    """Cancel a transaction by Synapse transaction ID."""
+    user = User.from_slack_id(slack_user_id)
+    debit_node = Node.by_id(user=synapse_user, id=user.debit_node_id)
+    trans_id = first_word(params)
+    transaction = Transaction.by_id(node=debit_node, id=trans_id)
+    transaction = transaction.cancel()
+    return ('*Transaction cancelled.*\n' + transaction_summary(transaction))
+
+
 # formatting helpers
 
 def user_summary(synapse_user):
     """Return Markdown formatted user info."""
     return ('```'
-            'Synapse user id: {0}\n'.format(synapse_user.id) +
+            'Synapse user ID: {0}\n'.format(synapse_user.id) +
             'Name: {0}\n'.format(synapse_user.legal_names[0]) +
             'Permissions: {0}\n'.format(synapse_user.permission) +
             '```')
@@ -125,7 +135,7 @@ def user_summary(synapse_user):
 def node_summary(node):
     """Return Markdown formatted node info."""
     return ('```'
-            'Node id: {0}\n'.format(node.id) +
+            'Node ID: {0}\n'.format(node.id) +
             'Nickname: {0}\n'.format(node.nickname) +
             'Type: {0}\n'.format(node.account_class) +
             'Permissions: {0}\n'.format(node.permission) +
@@ -135,13 +145,14 @@ def node_summary(node):
 def transaction_summary(trans):
     """Return Markdown formatted transaction info."""
     return('```'
-           'Trans id: {0}\n'.format(trans.id) +
+           'Trans ID: {0}\n'.format(trans.id) +
            'Amount: {0}\n'.format(format_currency(trans.amount)) +
-           'Status: {0}\n'.format(trans.recent_status['note']) +
-           'From node id: {0}\n'.format(trans.node.id) +
-           'To node id: {0}\n'.format(trans.to_id) +
+           'Status: {0} / {1}\n'.format(trans.recent_status['status'],
+                                        trans.recent_status['note']) +
            'Created on: {0}\n'.format(timestamp_to_string(trans.created_on)) +
            'Process on: {0}\n'.format(timestamp_to_string(trans.process_on)) +
+           'From node ID: {0}\n'.format(trans.node.id) +
+           'To node ID: {0}\n'.format(trans.to_id) +
            '```')
 
 
@@ -149,7 +160,7 @@ def recurring_transaction_summary(recurring):
     """Return Markdown formatted RecurringTransaction info."""
     return ('```'
             'Amount: {0}\n'.format(format_currency(recurring.amount)) +
-            'Periodicity: every {0} days\n'.format(recurring.periodicity) +
+            'Period: every {0} days\n'.format(recurring.periodicity) +
             '```')
 
 
