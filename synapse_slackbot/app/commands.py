@@ -58,7 +58,7 @@ def save(slack_user_id, synapse_user, params):
     user = User.from_slack_id(slack_user_id)
     debit_node = Node.by_id(user=synapse_user, id=user.debit_node_id)
     savings_node = Node.by_id(user=synapse_user, id=user.savings_node_id)
-    amount = first_word(params)
+    amount = remove_dollar_signs(first_word(params))
     if not amount:
         # invalid params
         return invalid_params_warning('send')
@@ -213,3 +213,7 @@ def string_date_to_ints(bday):
         return month, day, year
     except:
         return None, None, None
+
+
+def remove_dollar_signs(string):
+    return string.replace('$', '')

@@ -113,8 +113,9 @@ class SynapseBot():
                 )
             except Exception as e:
                 traceback.print_tb(e.__traceback__)
-                response = 'An error occurred:\n{0}: {1}'.format(sys.exc_info()[0],
-                                                                 sys.exc_info()[1])
+                response = 'An error occurred:\n{0}: {1}'.format(
+                    sys.exc_info()[0],sys.exc_info()[1]
+                )
         return response
 
     def acknowledge_command(self, channel):
@@ -144,7 +145,8 @@ class SynapseBot():
     def keyword_and_params_from_text(self, text):
         """Parse keyword and params from the Slack message."""
         try:
-            bot_name_stripped = self.without_first_word(text).lower().split(' ', 1)
+            bot_name_stripped = self.without_first_word(text).lower().split(' ',
+                                                                            1)
         except:
             return None, None
         keyword = bot_name_stripped[0]
