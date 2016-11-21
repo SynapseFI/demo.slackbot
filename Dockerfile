@@ -1,14 +1,8 @@
-FROM ubuntu:14.04
-
-RUN apt-get update \
-    && apt-get install -y tar git curl nano wget dialog net-tools build-essential \
-    && apt-get install --no-install-recommends -y -q python3 python3-pip python3-dev \
-    && apt-get install -y libxml2-dev libxslt-dev python-dev zlib1g-dev postgresql
-ADD . /bot
-WORKDIR /bot
-RUN pip3 install -r requirements.txt
- 
-# Expose port 8000
-EXPOSE 8000
-
+FROM ubuntu:latest
+MAINTAINER Steven Broderick "steven@synapsepay.com"
+RUN apt-get install --no-install-recommends -y -q python3 python3-pip python3-dev
+RUN apt-get install -y python-pip python-dev postgresql python-dev postgresql
+COPY . /app
+WORKDIR /app
+RUN pip install -r requirements.txt
 ENTRYPOINT ["gunicorn", "synapse_slackbot.run:app", "--timeout", "240"]
