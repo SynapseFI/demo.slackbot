@@ -10,4 +10,5 @@ WORKDIR /app
 RUN pip3 install --upgrade pip
 RUN pip3 install setuptools
 RUN pip3 install -r requirements.txt
+EXPOSE 8000
 ENTRYPOINT ["gunicorn", "synapse_slackbot.run:app", "--timeout", "240"]
