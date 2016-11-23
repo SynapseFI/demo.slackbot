@@ -2,9 +2,9 @@ import sys
 import traceback
 from synapse_pay_rest import User as SynapseUser
 from synapse_pay_rest.errors import SynapsePayError
-from synapse_slackbot.models import User
-from synapse_slackbot.synapse_client import synapse_client
-from .commands import balance, cancel, history, list_nodes, save, verify_node,\
+from models import User
+from synapse_client import synapse_client
+from commands import balance, cancel, history, list_nodes, save, verify_node,\
                       whoami
 
 
@@ -138,7 +138,7 @@ class SynapseBot():
     def registration_prompt(self, slack_id):
         """Warning message that the user needs to register first."""
         return ('*Please register first!*\n'
-                '> http://localhost:5000/register/{0}'.format(slack_id))
+                '> http://104.236.189.18/register/{0}'.format(slack_id))
 
     # helpers
 

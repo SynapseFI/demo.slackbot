@@ -11,5 +11,5 @@ CREATE TABLE recurring_transactions (
   id            varchar PRIMARY KEY,
   amount        integer NOT NULL,
   periodicity   decimal NOT NULL,
-  slack_user_id varchar(15) NOT NULL FOREIGN KEY REFERENCES users (slack_user_id)
+  slack_user_id varchar(15) NOT NULL REFERENCES users(slack_user_id)
 );

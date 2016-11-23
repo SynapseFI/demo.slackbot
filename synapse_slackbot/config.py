@@ -2,7 +2,7 @@
 import os
 from flask import Flask
 from slackclient import SlackClient
-from .db import connect_db
+from db import connect_db
 
 # Flask config
 app = Flask(__name__)
@@ -11,9 +11,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # DB config
 db = connect_db(app=app,
-                username='stevula',
-                password='default',
-                host='localhost',
+                username='postgres',
+                password='password',
+                host='159.203.245.190',
                 port=5432,
                 database='slackbot')
 

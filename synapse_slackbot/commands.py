@@ -1,8 +1,8 @@
 """Commands that can be called by Synapse slackbot."""
 import datetime
 from synapse_pay_rest import Node, Transaction
-from synapse_slackbot.config import db
-from synapse_slackbot.models import User, RecurringTransaction
+from config import db
+from models import User, RecurringTransaction
 
 
 def whoami(slack_user_id, synapse_user, params):

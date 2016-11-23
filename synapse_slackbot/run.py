@@ -7,9 +7,9 @@ import traceback
 import sys
 from flask import jsonify, render_template, request
 from synapse_pay_rest.errors import SynapsePayError
-from .config import app, slack_client
-from .app.synapse_bot import SynapseBot
-from .models import User
+from config import app, slack_client
+from synapse_bot import SynapseBot
+from models import User
 
 synapse_bot = SynapseBot(slack_client, os.environ.get('SLACKBOT_ID'))
 
