@@ -11,9 +11,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # DB config
 db = connect_db(app=app,
-                username='postgres',
-                password='password',
-                host='159.203.245.190',
+                username='stevula',
+                password='default',
+                host='localhost',
                 port=5432,
                 database='slackbot')
 

@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-"""Main Slackbot event loop and routes."""
 import time
 import os
 import _thread
@@ -11,7 +9,10 @@ from config import app, slack_client
 from synapse_bot import SynapseBot
 from models import User
 
-synapse_bot = SynapseBot(slack_client, os.environ.get('SLACKBOT_ID'))
+
+@app.route('/')
+def index():
+    return 'Flask is running!'
 
 
 @app.route('/register/<slack_id>', methods=['GET', 'POST'])
@@ -49,6 +50,7 @@ def register(slack_id):
 
 def start_bot_event_loop():
     """Main event loop for program."""
+    synapse_bot = SynapseBot(slack_client, os.environ.get('SLACKBOT_ID'))
     # second delay between reading from Slack RTM firehose
     READ_WEBSOCKET_DELAY = 1
     if slack_client.rtm_connect():
@@ -62,5 +64,8 @@ def start_bot_event_loop():
     else:
         print('Connection failed.')
 
-_thread.start_new_thread(start_bot_event_loop, ())
-app.run()
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    _thread.start_new_thread(start_bot_event_loop, ())
+    app.run(host='0.0.0.0', port=port)

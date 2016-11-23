@@ -1,12 +1,44 @@
-# Synapse Slackbot
+# misc.slackbot
 
-## Usage
+Synapse's file compression and storage service.
+
+
+###### Slack Interface
 See [samples.md](/samples.md).
 
-## Installation
-1. Clone the repo from GitHub.
-2. Install requirements:
-    `pip install -r requirements.txt`
-3. Run the server:
-    `synapse_slackbot.run:app --timeout 120`
-4. Add the bot to your Slack channel [here](https://slack.com/apps/A0F7YS25R-bots).
+
+###### To Run (Docker)
+
+To build:
+```
+docker build --rm -t misc.slackbot .
+```
+
+To run:
+```
+docker run -d -p 89:80 -v $(pwd)/app:/app --name=misc.slackbot misc.slackbot
+```
+
+
+###### App Structure
+
+```
+├── app
+│   ├── app.py
+│   ├── commands.py
+│   ├── config.py
+│   ├── core/
+│   ├── db.py
+│   ├── models.py
+│   ├── run.py
+│   ├── schema.sql
+│   ├── static/
+│   │   ├── jquery-3.1.1.min.js
+│   │   ├── register.css
+│   │   ├── register.js
+│   │   └── spin.min.js
+│   ├── synapse_bot.py
+│   ├── synapse_client.py
+│   └── templates
+│       └── register.html
+```

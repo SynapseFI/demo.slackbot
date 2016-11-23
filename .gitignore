@@ -13,3 +13,4 @@ __pycache__
 env.sh
 migrations
 *.html
+*.log
