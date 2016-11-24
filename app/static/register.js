@@ -412,7 +412,7 @@ const fileToBase64 = function(file, onLoadCallback){
 };
 
 const parseAddressFromAutocomplete = function(autocomplete) {
-  const addressFields = autocomplete.gm_accessors_.place.Fc.place.address_components;
+  const addressFields = autocomplete.getPlace().address_components;
   const street = [addressFields[0].short_name, addressFields[1].short_name].join(' ');
   const city = addressFields[3].long_name;
   const state = addressFields[5].short_name;

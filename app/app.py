@@ -66,6 +66,8 @@ def start_bot_event_loop():
 
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
+    # start connection to Slack streaming API
     _thread.start_new_thread(start_bot_event_loop, ())
+    # start Flask app
+    port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)

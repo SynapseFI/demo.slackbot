@@ -1,12 +1,13 @@
 click==6.6
 Flask==0.11.1
 Flask-SQLAlchemy==2.1
-gunicorn==19.6.0
 itsdangerous==0.24
 Jinja2==2.8
 MarkupSafe==0.23
 psycopg2==2.6.2
+requests==2.11.1
 slackclient==1.0.2
 SQLAlchemy==1.1.2
 synapse-pay-rest-native==1.0.3
+uwsgi==2.0.13.1
 Werkzeug==0.11.11
