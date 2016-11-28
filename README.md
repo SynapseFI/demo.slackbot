@@ -1,9 +1,9 @@
 # misc.slackbot
-
-Synapse's file compression and storage service.
+Slack integration using Synapse for automated savings.
 
 
 ###### Slack Interface
+
 See [samples.md](/samples.md).
 
 

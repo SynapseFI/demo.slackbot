@@ -37,7 +37,7 @@ const bindNextButton = function() {
 };
 
 const bindFormChange = function() {
-  $('form').bind('click keyup input', function() {
+  $('form').bind('change click keyup input', function() {
     if (checkAllTabInputsFilled()) {
       enableNextButton();
     }
