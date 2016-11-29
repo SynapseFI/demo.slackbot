@@ -32,12 +32,7 @@ docker run -d -p 89:80 -v $(pwd)/app:/app -e CLIENT_ID='' -e CLIENT_SECRET='' -e
 │   ├── models.py
 │   ├── schema.sql
 │   ├── static/
-│   │   ├── jquery-3.1.1.min.js
-│   │   ├── register.css
-│   │   ├── register.js
-│   │   └── spin.min.js
-│   ├── synapse_bot.py
+│   ├── bot.py
 │   ├── synapse_client.py
-│   └── templates
-│       └── register.html
+│   └── templates/
 ```

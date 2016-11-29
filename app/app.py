@@ -1,12 +1,9 @@
-import time
 import os
-import _thread
 import traceback
 import sys
 from flask import jsonify, render_template, request
 from synapse_pay_rest.errors import SynapsePayError
-from config import app, slack_client
-from synapse_bot import SynapseBot
+from config import app
 from models import User
 
 
@@ -48,27 +45,7 @@ def register(slack_id):
         return response
 
 
-def start_bot_event_loop():
-    """Main event loop for program."""
-    synapse_bot = SynapseBot(slack_client, os.environ.get('SLACKBOT_ID'))
-    # second delay between reading from Slack RTM firehose
-    READ_WEBSOCKET_DELAY = 1
-    if slack_client.rtm_connect():
-        print('SynapseBot connected and running!')
-        while True:
-            stream = synapse_bot.slack_client.rtm_read()
-            print(stream)
-            if stream and len(stream) > 0:
-                synapse_bot.parse_slack_output(stream)
-            time.sleep(READ_WEBSOCKET_DELAY)
-    else:
-        print('Connection failed.')
-
-# start connection to Slack streaming API
-_thread.start_new_thread(start_bot_event_loop, ())
-
 # for dev
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
-

@@ -8,7 +8,7 @@ from commands import balance, cancel, history, list_nodes, save, verify_node,\
                       whoami
 
 
-class SynapseBot():
+class Bot():
     """Provides a limited Slack interface for the Synapse API."""
 
     COMMANDS = {
