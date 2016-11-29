@@ -7,11 +7,10 @@
 }
 
 html {
-    font: 300 15px / 1.33333 "Gotham SSm A","Gotham SSm B","Helvetica Neue",Helvetica,Arial,sans-serif;
-    color: #3e474c;
-    -webkit-text-size-adjust: 100%;
-    -moz-text-size-adjust: 100%;
-    -ms-text-size-adjust: 100%;
+    font-family: Roboto, sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    color: rgb(105, 105, 105);
 }
 
 section {
@@ -24,6 +23,7 @@ main {
     margin: 0 auto;
     max-width: 768px;
     padding: 20px;
+    position: relative; /* for modal positioning */
     width: 100%;
 }
 
@@ -47,18 +47,15 @@ h6+p {
 }
 
 h1 {
-    font-family: "Gotham SSm A", "Gotham SSm B", "Helvetica Neue", Helvetica, Arial, sans-serif;
     text-transform: uppercase;
 }
 
 h2 {
-    color: #4eaacc;
-    line-height: 1.33333;
+    color: rgb(45, 156, 177);
+    line-height: 1.33;
     font-size: 24px;
     font-size: 1.6rem;
-    font-family: "Gotham A","Gotham B","Helvetica Neue",Helvetica,Arial,sans-serif;
     margin: 0 auto;
-    -webkit-font-smoothing: auto;
 }
 
 img {
@@ -70,15 +67,14 @@ img {
 
 .logo {
     line-height: 1;
-    margin: 1.25rem .75rem;
+    margin: 1.25rem .75rem 2.5rem;
     text-align: center;
 }
 
 .logo img {
     display: block;
-    height: 40px;
+    height: 60px;
     margin: 0 auto;
-    width: 149px;
 }
 
 
@@ -101,7 +97,7 @@ img {
 }
 
 .breadcrumb.active .breadcrumb-text {
-    color: #4eaacc;
+    color: rgb(45, 156, 177);
 }
 
 .breadcrumb-text {
@@ -110,21 +106,18 @@ img {
     font-size: 15px;
     font-size: 1rem;
     font-weight: 300;
-    padding: 0 0.53333em 1.6em;
+    padding: 0 0.5em 1.6em;
     position: relative;
     text-decoration: none;
     user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    -webkit-user-select: none;
 }
 
 .breadcrumb-text:before {
-    background: #dadfe1;
+    background: rgb(220, 225, 225);
 }
 
 .breadcrumb-text:after {
-    background: #4eaacc;
+    background: rgb(45, 156, 177);
 }
 
 .breadcrumb-text:after,
@@ -138,12 +131,12 @@ img {
 }
 
 .breadcrumb.active ~ .breadcrumb .breadcrumb-text {
-    color: #b0babf;
+    color: rgb(175, 185, 190);
     transition: color 260ms ease-out;
 }
 
 .breadcrumb.active ~ .breadcrumb .breadcrumb-text:after {
-    background: #dadfe1;
+    background: rgb(220, 225, 225);
     width: 0;
 }
 
@@ -151,30 +144,39 @@ img {
 /* ALERT */
 
 .alert {
-    background: #f6f8f8 32px 50%;
+    background-color: rgb(240, 240, 240);
     display: none;
-    font-size: 0.93333rem;
-    line-height: 1.42857;
+    font-size: 0.9rem;
+    line-height: 1.4;
     margin: 0 0 32px;
     min-height: 78px;
     overflow: auto;
-    padding: 30px 30px 30px 89px;
+    padding: 30px 30px 30px 15px;
     transition: opacity 260ms ease-out,margin 260ms cubic-bezier(0, 0, 0, 1);
 }
 
 .alert.valid {
-    border-left: 6px solid #59f04e;
+    border-left: 6px solid rgb(90, 240, 75);
     display: block;
 }
 
 .alert.invalid {
-    border-left: 6px solid #f1564f;
+    border-left: 6px solid rgb(240, 85, 80);
     display: block;
 }
 
-.pending {
-    border-left: 6px solid #eef04e;
+.alert.pending {
+    border-left: 6px solid rgb(240, 240, 80);
     display: block;
+}
+
+.alert img {
+    float: left;
+    margin-right: 15px;
+}
+
+.alert-message {
+    margin-left: 62.5px; /* container padding + img width + img margin */
 }
 
 
@@ -187,47 +189,43 @@ img {
 }
 
 input {
-    border-color: #b0babf;
+    border-color: rgb(175, 185, 190);
     line-height: normal;
 }
 
 input:focus {
-    border-color: #4eaacc;
-    color: #4eaacc;
+    border-color: rgb(45, 156, 177);
+    color: rgb(45, 156, 177);
 }
 
 input[type=date] {
-    height: 41.3125px;
+    height: 41px;
 }
 
 input.invalid {
-    border: 1px solid #f1564f;
+    border: 1px solid rgb(240, 85, 80);
 }
 
 label {
-    color: #788991;
-    /*display: block;*/
+    color: rgb(120, 140, 145);
     font-size: 1rem;
     font-weight: 500;
-    -webkit-font-smoothing: antialiased;
 }
 
 input,
 select,
 textarea {
     appearance: none;
-    -moz-appearance: none;
-    -webkit-appearance: none;
-    background: #fff;
-    border: 1px solid #b0babf;
+    background: rgb(255, 255, 255);
+    border: 1px solid rgb(175, 185, 190);
     border-radius: 0;
     box-shadow: none;
-    color: #b0babf;
-    /*display: block;*/
-    font: 300 1.2rem / 1.33333 "Gotham SSm A","Gotham SSm B","Helvetica Neue",Helvetica,Arial,sans-serif;
-    -webkit-font-smoothing: antialiased;
+    color: rgb(175, 185, 190);
+    font-family: Roboto, sans-serif;
+    font-size: 14px;
+    font-weight: 300;
     outline: none;
-    padding: 0.66667em 0.88889em;
+    padding: 0.66em 0.9em;
     resize: none;
     text-shadow: none;
     transition: all 260ms ease-out;
@@ -242,19 +240,20 @@ select,
 textarea {
     color: inherit;
     font: inherit;
+    font-family: Roboto, sans-serif;
     margin: 0;
 }
 
 input:placeholder-shown,
 textarea:placeholder-shown {
-    color: #b0babf;
+    color: rgb(175, 185, 190);
     opacity: 1;
 }
 
 label+input,
 label+textarea,
 label+select {
-    margin-top: 0.22222em;
+    margin-top: 0.22em;
 }
 
 .half {
@@ -294,53 +293,46 @@ label+select {
 
 .button {
     appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background: #fff;
-    border: 1px solid #4eaacc;
+    background: rgb(255, 255, 255);
+    border: 1px solid rgb(45, 156, 177);
     border-radius: 0;
-    color: #4eaacc;
+    color: rgb(45, 156, 177);
     cursor: pointer;
     display: block;
     font-size: 1.2rem;
     font-weight: 300;
-    line-height: 1.33333;
-    padding: 0.55556em 1em;
+    line-height: 1.33;
+    padding: 0.55em 1em;
     text-align: center;
     text-decoration: none;
     text-shadow: none;
     transition: all 260ms ease-out;
-    transform: translate3d(0, 0, 0);
     width: 100%;
 }
 
 .submit,
 .submit:focus,
 .next {
-    background: #4eaacc;
-    color: #fff;
+    background: rgb(45, 156, 177);
+    color: rgb(255, 255, 255);
 }
 
 .submit:focus {
-    outline-color: -webkit-focus-ring-color;
     outline-style: auto;
-    outline: -webkit-focus-ring-color auto 5px;
     outline-width: 5px;
 }
 
 .button[disabled] {
     appearance: none;
-    -moz-appearance: none;
-    -webkit-appearance: none;
-    background: #4eaacc;
-    border: 1px solid #4eaacc;
+    background: rgb(45, 156, 177);
+    border: 1px solid rgb(45, 156, 177);
     border-radius: 0;
-    color: #fff;
+    color: rgb(255, 255, 255);
     cursor: default;
     display: block;
     font-size: 1.2rem;
     font-weight: 300;
-    line-height: 1.33333;
+    line-height: 1.33;
     opacity: .5;
     overflow: visible;
     padding: 0.55556em 1em;
@@ -354,24 +346,67 @@ label+select {
 }
 
 
+/* SELFIE TAB */
+
+.selfie-upload {
+    display: none;
+}
+
+
+/* W9 MODAL */
+
+ol {
+    padding: 0 0 0 1em;
+}
+
+ol li {
+    margin: 0;
+    padding: 0 0 0.4em 1em;
+}
+
+.modal {
+    background: rgb(255, 255, 255);
+    display: none;
+    left: 0;
+    margin: 30px auto 30px;
+    max-width: 640px;
+    padding: 30px 65px 50px;
+    position: absolute;
+    right: 0;
+    width: 85%;
+    z-index: 1;
+}
+
+.modal strong {
+    color: rgb(120, 140, 145);
+    display: block;
+    margin: 32.5px auto 20px;
+    text-align: center;
+}
+
+.modal p {
+    line-height: 1.5;
+}
+
+
 /* REVIEW TAB */
 
 dl {
-    border-top: 1px solid #dadfe1;
+    border-top: 1px solid rgb(220, 225, 225);
     margin: 0 auto;
     padding: 24px 0 12px;
 }
 
 dl:last-of-type {
-    border-bottom: 1px solid #dadfe1;
+    border-bottom: 1px solid rgb(220, 225, 225);
 }
 
 dt {
-    color: #788991;
+    color: rgb(120, 140, 145);
 }
 
 dd {
-    margin: 0.26667em 0 1.6em;
+    margin: 0.25em 0 1.6em;
 }
 
 dt {
@@ -387,7 +422,6 @@ dd {
     display: inline-block;
     font-weight: 500;
     margin-bottom: 1.6em;
-    -webkit-font-smoothing: antialiased;
 }
 
 .heading dd {
@@ -395,7 +429,7 @@ dd {
 }
 
 .heading .edit {
-    color: #4eaacc;
+    color: rgb(45, 156, 177);
     text-decoration: none;
 }
 

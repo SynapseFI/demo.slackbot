@@ -64,10 +64,11 @@ def start_bot_event_loop():
     else:
         print('Connection failed.')
 
+# start connection to Slack streaming API
+_thread.start_new_thread(start_bot_event_loop, ())
 
+# for dev
 if __name__ == '__main__':
-    # start connection to Slack streaming API
-    _thread.start_new_thread(start_bot_event_loop, ())
-    # start Flask app
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
+

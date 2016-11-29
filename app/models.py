@@ -1,8 +1,7 @@
 """SQLAlchemy model class definitions."""
 from synapse_pay_rest import User as SynapseUser
 from synapse_pay_rest.models.nodes import AchUsNode, SynapseUsNode
-from config import db
-from synapse_client import synapse_client
+from config import db, synapse_client
 
 
 class User(db.Model):

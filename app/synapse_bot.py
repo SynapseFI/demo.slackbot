@@ -3,7 +3,7 @@ import traceback
 from synapse_pay_rest import User as SynapseUser
 from synapse_pay_rest.errors import SynapsePayError
 from models import User
-from synapse_client import synapse_client
+from config import synapse_client
 from commands import balance, cancel, history, list_nodes, save, verify_node,\
                       whoami
 
