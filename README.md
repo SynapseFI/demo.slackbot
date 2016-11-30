@@ -22,12 +22,12 @@ python3 app/app.py && python3 app/slack_event_loop.py
 
 To build:
 ```
-docker build --rm -t misc.slackbot .
+docker build --rm -t demo.slackbot .
 ```
 
 To run:
 ```
-docker run -d -p 89:80 -v $(pwd)/app:/app
+docker run -d -p 89:80 -v $(pwd)/app:/app --name=demo.slackbot demo.slackbot
 ```
 
 
