@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Synapse Slackbot User Registration</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='register.css')}}">
+    <script src="{{url_for('static', filename='vendor/jquery-3.1.1.min.js')}}"></script>
+    <script src="{{url_for('static', filename='vendor/spin.min.js')}}"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDnzbCetW0SqgZ8eEr_Q0Zyi8HCtbe_LSk&libraries=places"></script>
+    <script type="text/javascript" src="{{url_for('static', filename='register.js')}}"></script>
+</head>
+
+<body>
+  <main>
+    <header>
+      <!-- site header -->
+      <h1 class="logo">SynapseBot Registration</h1>
+
+      <!-- breadcrumbs -->
+      <ol class="breadcrumbs">
+        <li class="breadcrumb tab0 active">
+          <span class="breadcrumb-text">Personal info</span>
+        </li>
+        <li class="breadcrumb tab1">
+          <span class="breadcrumb-text">Identification info</span>
+        </li>
+        <li class="breadcrumb tab2">
+          <span class="breadcrumb-text">Account info</span>
+        </li>
+        <li class="breadcrumb tab3">
+          <span class="breadcrumb-text">Review &amp; submit</span>
+        </li>
+      </ol>
+    </header>
+
+    <div id="spinner"></div>
+
+    <!-- visible on tab 0 -->
+    <section class="tab tab-header tab0">
+      <h2>Howdy!</h2>
+      <p>
+        I need to collect some personal details to enable you to send funds.
+      </p>
+    </section>
+
+    <!-- visible on tab 1 -->
+    <section class="tab tab-header tab1">
+      <h2>Protecting your identity</h2>
+      <p>
+        Now I need to make sure you are who you say you are. This is to prevent other people from gaining access to your accounts.
+      </p>
+    </section>
+
+    <!-- visible on tab 2 -->
+    <section class="tab tab-header tab2">
+      <h2>Linking a bank account</h2>
+      <p>
+        Please provide the information for a checking account that belongs to you. That is where I will transfer your automatic savings from.
+      </p>
+      <p>
+        Please note that you will not be able to make a savings transfer until you verify your checking account. <em>You should receive two microdeposits to your account within 1-2 days (less than $1.00 each).</em> Synapsebot will ask for these amounts in Slack.
+      </p>
+    </section>
+
+    <!-- visible on tab 3 -->
+    <section class="tab tab-header tab3">
+      <h2>Make sure I got everything correct!</h2>
+      <p>
+        After you click Submit, I will also open an FDIC-insured account in your name, which is where I will transfer your automatic savings.
+      </p>
+      <p>
+        You can still click the Back button or Edit to make changes. Click Submit if everything looks good.
+      </p>
+    </section>
+
+    <!-- alerts -->
+    <div class="alert"></div>
+
+    <form action="/register/{{slack_id}}" method="POST" enctype="multipart/form-data">
+
+      <!-- visible on tab 0 -->
+      <div class="tab tab0">
+        <div class="group">
+          <div class="half">
+            <label for="name">Name</label>
+            <input type="text" name="name" placeholder="e.g. Boaty McBoatface">
+          </div>
+
+          <div class="half">
+            <label for="birthday">Date of Birth</label>
+            <input type="date" name="birthday" placeholder="01-01-1901">
+          </div>
+        </div>
+
+        <div class="group">
+          <div class="half">
+            <label for="email">Email address</label>
+            <input type="email" name="email" placeholder="example@synapsepay.com">
+          </div>
+
+          <div class="half">
+            <label for="phone">Phone number</label>
+            <input type="tel" name="phone" placeholder="000-000-0000">
+          </div>
+        </div>
+
+        <div class="group">
+          <label for="address">Address</label>
+          <input type="text" id="address" name="address" placeholder="e.g. 42 Evergreen Terrace, Springfield, OR 97477">
+        </div>
+      </div>
+
+      <!-- visible on tab 1 -->
+      <div class="tab tab1">
+        <div class="group">
+          <div class="half">
+            <label for="ssn">Last 4 Digits of SSN</label>
+            <input type="number" name="ssn" maxlength="4" placeholder="2222">
+          </div>
+    
+          <div class="half">
+            <label for="govt_id">Image of government-issued photo ID</label>
+            <input id="govtId" type="file" name="govt_id" accept="image/*">
+          </div>
+        </div>
+      </div>
+
+      <!-- visible on tab 2 -->
+      <div class="tab tab2">
+        <div class="group">
+          <div class="half">
+            <label for="account_number">Account number</label>
+            <input type="text" name="account_number" placeholder="0000000000">
+          </div>
+    
+          <div class="half">
+            <label for="routing_number">Routing number</label>
+            <input type="text" maxlength="9" name="routing_number" placeholder="000000000">
+          </div>
+        </div>
+      </div>
+
+      <!-- visible on tab 3 -->
+      <div class="tab tab3">
+        <div class="group">
+          <dl>
+            <div class="heading">
+              <dt>Personal info</dt>
+              <dd><a href="#" id="editTab0" class="edit">Edit</a></dd>
+            </div>
+
+            <div>
+              <dt>Name</dt>
+              <dd id="review_name"></dd>
+            </div>
+            <div>
+              <dt>Date of Birth</dt>
+              <dd id="review_birthday"></dd>
+            </div>
+            <div>
+              <dt>Email</dt>
+              <dd id="review_email"></dd>
+            </div>
+            <div>
+              <dt>Phone</dt>
+              <dd id="review_phone"></dd>
+            </div>
+            <div>
+              <dt>Address</dt>
+              <dd id="review_address"></dd>
+            </div>
+          </dl>
+
+          <dl>
+            <div class="heading">
+              <dt>Identification info</dt>
+              <dd><a href="#" id="editTab1" class="edit">Edit</a></dd>
+            </div>
+
+            <div>
+              <dt>SSN</dt>
+              <dd id="review_ssn"></dd>
+            </div>
+            <div>
+              <dt>Photo ID</dt>
+              <dd id="review_govt_id"></dd>
+            </div>
+          </dl>
+
+          <dl>
+            <div class="heading">
+              <dt>Account info</dt>
+              <dd><a href="#" id="editTab2" class="edit">Edit</a></dd>
+            </div>
+
+            <div>
+              <dt>Account number</dt>
+              <dd id="review_account_number"></dd>
+            </div>
+            <div>
+              <dt>Routing number</dt>
+              <dd id="review_routing_number"></dd>
+            </div>
+          </dl>
+        </div>
+
+        <!-- disclosures -->
+        <div class="disclosures">
+          <div class="group">
+            By creating this account you agree to SynapsePay’s <a href="https://synapsepay.com/legal" target="_blank">Terms of Service &amp; Privacy Policy</a>.
+          </div>
+        </div>
+      </div>
+
+      <!-- tab nav / form submit -->
+      <div class="group">
+        <div class="half">
+          <!-- back -->
+          <button class="button back" disabled>Back</button>
+        </div>
+
+        <div class="half">
+          <!-- next (visible on all but final tab) -->
+          <button class="button next" disabled>Next</button>
+
+          <!-- form submit (visible only on final tab) -->
+          <input type="submit" class="button submit" value="Submit" disabled>
+        </div>
+      </div>
+    </form>
+  </main>
+</body>
+</html>
