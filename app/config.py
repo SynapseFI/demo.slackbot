@@ -1,9 +1,14 @@
 """General settings and database initialization."""
+import os
 from flask import Flask
 from slackclient import SlackClient
 from synapse_pay_rest import Client
 from db import connect_db
-from secrets import CLIENT_ID, CLIENT_SECRET, FINGERPRINT, SLACKBOT_TOKEN
+
+CLIENT_ID = os.environ['CLIENT_ID']
+CLIENT_SECRET = os.environ['CLIENT_SECRET']
+FINGERPRINT = os.environ['FINGERPRINT']
+SLACKBOT_TOKEN = os.environ['SLACKBOT_TOKEN']
 
 app = Flask(__name__)
 # app.config['DEBUG'] = True

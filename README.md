@@ -15,7 +15,10 @@ See [samples.md](/samples.md).
 
 To run:
 ```
-python3 app/app.py && python3 app/slack_event_loop.py
+python3 app/app.py
+
+# in a separate terminal
+python3 app/slack_event_loop.py
 ```
 
 #### Docker Instructions
@@ -43,7 +46,6 @@ app/
 ├── db.py
 ├── models.py
 ├── schema.sql
-├── secrets.py
 ├── slack_event_loop.py
 ├── static/
 └── templates/

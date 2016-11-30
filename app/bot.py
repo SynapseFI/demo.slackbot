@@ -101,7 +101,6 @@ class Bot():
         """Attempt to run the command with the parameters provided."""
         self.acknowledge_command(channel)
         synapse_user = self.synapse_user_from_slack_user_id(slack_id)
-        self.post_to_channel(channel, 'synapse_user: {0}'.format(synapse_user))
         response = self.registration_prompt(slack_id)
 
         if synapse_user:
@@ -117,7 +116,6 @@ class Bot():
                 response = 'An error occurred:\n{0}: {1}'.format(
                     sys.exc_info()[0],sys.exc_info()[1]
                 )
-        self.post_to_channel(channel, 'response: {0}'.format(response))
         return response
 
     def acknowledge_command(self, channel):
