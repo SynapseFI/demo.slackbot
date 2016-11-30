@@ -1,6 +1,6 @@
 # start with a base image
 # FROM ubuntu:16.04
-FROM python:3.4-slim
+FROM python:3.5-slim
 
 # install dependencies
 RUN apt-get update && apt-get install -y \

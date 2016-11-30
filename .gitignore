@@ -14,3 +14,4 @@ env.sh
 migrations
 *.html
 *.log
+secrets.*

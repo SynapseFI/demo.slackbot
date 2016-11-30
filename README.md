@@ -1,38 +1,50 @@
-# misc.slackbot
+# demo.slackbot
 Slack integration using Synapse for automated savings.
 
+___
+>**Disclaimer**
+>SynapseBot is only a proof of concept. It is not secure and should never be used for real users, nodes, or transactions.
+___
 
-###### Slack Interface
+#### Slack Interface
 
 See [samples.md](/samples.md).
 
 
-###### To Run (Docker)
+#### Non-Docker Instructions
+
+To run:
+```
+python3 app/app.py && python3 app/slack_event_loop.py
+```
+
+#### Docker Instructions
 
 To build:
 ```
 docker build --rm -t misc.slackbot .
 ```
 
-To run (env args needed):
+To run:
 ```
-docker run -d -p 89:80 -v $(pwd)/app:/app -e CLIENT_ID='' -e CLIENT_SECRET='' -e FINGERPRINT='' -e SLACKBOT_TOKEN='' -e SLACKBOT_ID='' --name=misc.slackbot misc.slackbot
+docker run -d -p 89:80 -v $(pwd)/app:/app
 ```
 
 
-###### App Structure
+#### App Structure
 
 ```
-├── app
-│   ├── app.py
-│   ├── commands.py
-│   ├── config.py
-│   ├── core/
-│   ├── db.py
-│   ├── models.py
-│   ├── schema.sql
-│   ├── static/
-│   ├── bot.py
-│   ├── synapse_client.py
-│   └── templates/
+app/
+├── app.py
+├── bot.py
+├── commands.py
+├── config.py
+├── core/
+├── db.py
+├── models.py
+├── schema.sql
+├── secrets.py
+├── slack_event_loop.py
+├── static/
+└── templates/
 ```
