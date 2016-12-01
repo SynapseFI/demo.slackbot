@@ -137,8 +137,9 @@ class Bot():
 
     def registration_prompt(self, slack_id):
         """Warning message that the user needs to register first."""
+        base_url = 'https://slackbot-qa.synapsefi.com'
         return ('*Please register first!*\n'
-                '> http://104.236.189.18/register/{0}'.format(slack_id))
+                '> {0}/register/{1}'.format(base_url, slack_id))
 
     # helpers
 
